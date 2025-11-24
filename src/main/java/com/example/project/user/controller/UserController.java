@@ -2,9 +2,11 @@ package com.example.project.user.controller;
 
 import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.DeleteUserRequest;
+import com.example.project.user.model.request.LoginRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
 import com.example.project.user.model.response.CreateUserResponse;
 import com.example.project.user.model.response.GetUserResponse;
+import com.example.project.user.model.response.LoginResponse;
 import com.example.project.user.model.response.UpdateUserResponse;
 import com.example.project.user.service.UserService;
 import jakarta.validation.Valid;
@@ -25,6 +27,14 @@ public class UserController {
     ) {
         CreateUserResponse result = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody LoginRequest request) {
+        LoginResponse result = userService.login(request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping("/users/{userId}")
