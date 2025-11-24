@@ -1,8 +1,10 @@
 package com.example.project.user.controller;
 
 import com.example.project.user.model.request.CreateUserRequest;
+import com.example.project.user.model.request.UpdateUserRequest;
 import com.example.project.user.model.response.CreateUserResponse;
 import com.example.project.user.model.response.GetUserResponse;
+import com.example.project.user.model.response.UpdateUserResponse;
 import com.example.project.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,15 @@ public class UserController {
             @PathVariable long userId
     ) {
         GetUserResponse result = userService.findUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 내 정보 수정
+    @PatchMapping("/users/me")
+    public ResponseEntity<UpdateUserResponse> updateUser(
+            @RequestBody UpdateUserRequest request
+    ) {
+        UpdateUserResponse result = userService.updateUser(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
