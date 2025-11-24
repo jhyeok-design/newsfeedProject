@@ -1,6 +1,7 @@
 package com.example.project.user.controller;
 
 import com.example.project.user.model.request.CreateUserRequest;
+import com.example.project.user.model.request.DeleteUserRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
 import com.example.project.user.model.response.CreateUserResponse;
 import com.example.project.user.model.response.GetUserResponse;
@@ -47,9 +48,10 @@ public class UserController {
     // 회원 삭제 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Long userId
+            @PathVariable Long userId,
+            @Valid @RequestBody DeleteUserRequest request
     ) {
-        userService.deleteUser(userId);
+        userService.deleteUser(userId, request.getPassword());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
