@@ -86,7 +86,7 @@ public class UserService {
 
     public User findUserOrException(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저 없음")
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
     }
 }
