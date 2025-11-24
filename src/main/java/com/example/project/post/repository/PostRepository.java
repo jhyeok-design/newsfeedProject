@@ -16,7 +16,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
     Optional<Post> findByIdAndIsDeletedFalse(Long postID);
-
-public interface PostRepository extends JpaRepository<Post,Long> {
-    List<Post> findByUserIdOrderByCreatedAtDesc(Long userID);
 }

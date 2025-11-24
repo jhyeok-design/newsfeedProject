@@ -45,7 +45,4 @@ public class Post extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
-    }
-
-    // 기능
 }
