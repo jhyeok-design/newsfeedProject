@@ -15,7 +15,7 @@ public class PostService {
 
     /**
      * 내 게시물 전체 조회
-     * @param userID 유저의 고유 ID
+     * @param userID 유저 ID
      * @return ReadPostResponse 리스트
      */
     public List<ReadPostResponse> getAllMe(Long userID) {
@@ -23,5 +23,19 @@ public class PostService {
         List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(userID);
 
         return posts.stream().map(ReadPostResponse::new).toList();
+    }
+
+    /**
+     * 게시물 단건 조회
+     * @param userID 로그인한 유저 ID
+     * @param postID 조회할 게시물 ID
+     * @return
+     */
+    public ReadPostResponse getOne(Long userID, Long postID) {
+        // 게시물 조회
+        Post post = postRepository.findById(postID)
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
+
+        return new ReadPostResponse(post);
     }
 }
