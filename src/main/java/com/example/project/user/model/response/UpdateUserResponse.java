@@ -8,22 +8,22 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class CreateUserResponse {
+public class UpdateUserResponse {
 
     private final long id;
     private final String email;
     private final String nickname;
     private final String userName;
-    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 
 
-    public static CreateUserResponse from(User user) {
-        return new CreateUserResponse(
+    public static UpdateUserResponse from(User user) {
+        return new UpdateUserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
                 user.getUserName(),
-                user.getCreatedAt()
+                user.getModifiedAt()
         );
     }
 }
