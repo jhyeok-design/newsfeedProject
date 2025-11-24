@@ -51,7 +51,7 @@ public class UserService {
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
         User user = findUserOrException(userId);
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches (request.getCurrentPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
@@ -59,11 +59,11 @@ public class UserService {
             throw new CustomException(ErrorCode.SAME_PASSWORD);
         }
 
-        String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+        passwordEncoder.encode(request.getNewPassword());
 
         user.updateUser(
                 request.getNickname(),
-                encodedNewPassword
+                request.getNewPassword()
         );
 
         return UpdateUserResponse.from(user);
