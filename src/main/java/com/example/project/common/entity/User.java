@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(name = "users")
@@ -27,6 +29,11 @@ public class User extends BaseEntity {
 
     private String password;
 
+    // 회원정보 논리적 삭제 플레그
+    private boolean deleted = false;
+    // 삭제 시간 기록용
+    private LocalDateTime deletedAt;
+
     public User(String userName, String email, String nickname, String password) {
         this.userName = userName;
         this.email = email;
@@ -38,5 +45,11 @@ public class User extends BaseEntity {
     public void updateUser(String nickname, String password) {
         this.nickname = nickname;
         this.password = password;
+    }
+
+    // 회원정보 논리적 삭제 + 시간 기록
+    public void softDelete() {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

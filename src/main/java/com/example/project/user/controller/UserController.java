@@ -21,16 +21,14 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<CreateUserResponse> createUser(
-            @Valid @RequestBody CreateUserRequest request
-    ) {
+            @Valid @RequestBody CreateUserRequest request) {
         CreateUserResponse result = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<GetUserResponse> getUser(
-            @PathVariable long userId
-    ) {
+            @PathVariable long userId) {
         GetUserResponse result = userService.findUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -39,18 +37,17 @@ public class UserController {
     @PatchMapping("/users/{userId}")
     public ResponseEntity<UpdateUserResponse> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UpdateUserRequest request
-    ) {
+            @Valid @RequestBody UpdateUserRequest request) {
         UpdateUserResponse result = userService.updateUser(userId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     // 회원 삭제 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
+    // 세션이나 토큰 없이는 '나'임을 증명할 방법이 RequestBody 이정도 뿐이다
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long userId,
-            @Valid @RequestBody DeleteUserRequest request
-    ) {
+            @Valid @RequestBody DeleteUserRequest request) {
         userService.deleteUser(userId, request.getPassword());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
