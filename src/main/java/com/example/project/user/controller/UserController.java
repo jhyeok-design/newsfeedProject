@@ -42,4 +42,13 @@ public class UserController {
         UpdateUserResponse result = userService.updateUser(userId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
+
+    // 회원 삭제 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long userId
+    ) {
+        userService.deleteUser(userId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

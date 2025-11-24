@@ -60,5 +60,15 @@ public class UserService {
 
         return UpdateUserResponse.from(user);
     }
+
+    // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
+    @Transactional
+    public void deleteUser(Long userId) {
+        boolean existence = userRepository.existsById(userId);
+        if (!existence) {
+            throw new IllegalArgumentException("유저 없음");
+        }
+        userRepository.deleteById(userId);
+    }
 }
 
