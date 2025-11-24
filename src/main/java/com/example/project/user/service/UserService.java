@@ -38,10 +38,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public GetUserResponse findUser(long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저 없음")
-        );
+    public GetUserResponse findUser(Long userId) {
+        User user = findUserOrException(userId);
 
         return GetUserResponse.from(user);
     }
@@ -49,9 +47,7 @@ public class UserService {
     // 내 정보 수정 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저 없음")
-        );
+        User user = findUserOrException(userId);
 
         user.updateUser(
                 request.getNickname(),
@@ -64,11 +60,15 @@ public class UserService {
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
     public void deleteUser(Long userId) {
-        boolean existence = userRepository.existsById(userId);
-        if (!existence) {
-            throw new IllegalArgumentException("유저 없음");
-        }
+        User user = findUserOrException(userId);
+
         userRepository.deleteById(userId);
+    }
+
+    public User findUserOrException(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("유저 없음")
+        );
     }
 }
 
