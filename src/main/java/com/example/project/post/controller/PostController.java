@@ -2,6 +2,7 @@ package com.example.project.post.controller;
 
 import com.example.project.post.dto.*;
 import com.example.project.post.entity.Post;
+import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,12 @@ import java.util.List;
 /**
  * 게시물 관련 요청을 받아 처리하는 Controller 클래스
  */
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class PostController {
@@ -92,5 +99,12 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Long userID, @PathVariable Long postID) {
         postService.delete(userID, postID);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    @GetMapping("/posts/me/{userID}")
+    public ResponseEntity<List<ReadPostResponse>> getAllPostMe(
+            @PathVariable Long userID
+    ) {
+        List<ReadPostResponse> result = postService.getAllMe(userID);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

@@ -34,4 +34,5 @@ public class UpdatePostResponse {
                 post.getModifiedAt()
         );
     }
+public class UpdatePostResponse {
 }
