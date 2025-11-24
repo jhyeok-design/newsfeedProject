@@ -44,6 +44,16 @@ public class JwtUtil {
         return Long.parseLong(claims.getSubject());
     }
 
+    // 토큰 검증
+    public boolean validateToken(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // JWT 파싱
     private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
