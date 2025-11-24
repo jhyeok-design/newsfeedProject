@@ -1,5 +1,7 @@
 package com.example.project.post.service;
 
+import com.example.project.post.dto.CreatePostRequest;
+import com.example.project.post.dto.CreatePostResponse;
 import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.entity.Post;
 import com.example.project.post.repository.PostRepository;
@@ -12,6 +14,23 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
+
+    /**
+     * 게시물 생성
+     * @param request CreatePostRequest DTO(생성할 게시물의 제목과 내용)
+     * @return CreatePostResponse dto
+     */
+    public CreatePostResponse createPost(CreatePostRequest request) {
+
+        Post post = new Post(
+                request.getTitle(),
+                request.getContent()
+        );
+
+        Post savedPost = postRepository.save(post);
+
+        return CreatePostResponse.from(savedPost);
+    }
 
     /**
      * 내 게시물 전체 조회

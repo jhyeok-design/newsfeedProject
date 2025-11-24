@@ -1,6 +1,8 @@
 package com.example.project.post.controller;
 
+import com.example.project.post.dto.CreatePostResponse;
 import com.example.project.post.dto.ReadPostResponse;
+import com.example.project.post.dto.CreatePostRequest;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -19,6 +23,17 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+
+    /**
+     * 게시물 생성
+     * @param request CreatePostRequest DTO(생성할 게시물의 제목과 내용)
+     * @return 생성된 게시물의 Response DTO
+     */
+    @PostMapping("/posts")
+    public ResponseEntity<CreatePostResponse> createPost(@RequestBody CreatePostRequest request) {
+        CreatePostResponse response = postService.createPost(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     /**
      * 내 게시물 전체 조회
