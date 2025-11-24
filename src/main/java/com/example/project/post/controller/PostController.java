@@ -1,7 +1,6 @@
 package com.example.project.post.controller;
 
 import com.example.project.post.dto.*;
-import com.example.project.post.entity.Post;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
