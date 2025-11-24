@@ -71,10 +71,17 @@ public class UserService {
 
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
-    public void deleteUser(Long userId) {
-        findUserOrException(userId);
+    public void deleteUser(Long userId, String rawPassword) {
 
-        userRepository.deleteById(userId);
+        User user = findUserOrException(userId);
+
+        String encodedPassword = user.getPassword();
+
+        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        userRepository.delete(user);
     }
 
     public User findUserOrException(Long userId) {
