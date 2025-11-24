@@ -1,6 +1,8 @@
 package com.example.project.user.service;
 
 import com.example.project.common.entity.User;
+import com.example.project.common.exception.CustomException;
+import com.example.project.common.exception.ErrorCode;
 import com.example.project.common.utils.PasswordEncoder;
 import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
@@ -38,10 +40,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public GetUserResponse findUser(long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저 없음")
-        );
+    public GetUserResponse findUser(Long userId) {
+        User user = findUserOrException(userId);
 
         return GetUserResponse.from(user);
     }
@@ -49,13 +49,21 @@ public class UserService {
     // 내 정보 수정 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저 없음")
-        );
+        User user = findUserOrException(userId);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.SAME_PASSWORD);
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
 
         user.updateUser(
                 request.getNickname(),
-                request.getPassword()
+                encodedNewPassword
         );
 
         return UpdateUserResponse.from(user);
@@ -63,12 +71,23 @@ public class UserService {
 
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
-    public void deleteUser(Long userId) {
-        boolean existence = userRepository.existsById(userId);
-        if (!existence) {
-            throw new IllegalArgumentException("유저 없음");
+    public void deleteUser(Long userId, String rawPassword) {
+
+        User user = findUserOrException(userId);
+
+        String encodedPassword = user.getPassword();
+
+        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
-        userRepository.deleteById(userId);
+
+        userRepository.delete(user);
+    }
+
+    public User findUserOrException(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
     }
 }
 
