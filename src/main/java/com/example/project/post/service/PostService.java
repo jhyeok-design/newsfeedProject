@@ -37,11 +37,9 @@ public class PostService {
      * @return ReadPostResponse 리스트
      */
     public List<ReadPostResponse> getAll() {
-        List<Post> postList = postRepository.findAll();
+        List<Post> postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
 
-        return postList.stream()
-                .map(ReadPostResponse::new)     // == .map(post -> new ReadPostResponse(post))
-                .toList();
+        return postList.stream().map(ReadPostResponse::new).toList(); // == .map(post -> new ReadPostResponse(post))
     }
 
     /**
@@ -60,7 +58,7 @@ public class PostService {
      * 게시물 단건 조회
      * @param userID 로그인한 유저 ID
      * @param postID 조회할 게시물 ID
-     * @return
+     * @return ReadPostResponse DTO
      */
     public ReadPostResponse getOne(Long userID, Long postID) {
         // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
