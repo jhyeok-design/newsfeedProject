@@ -3,8 +3,10 @@ package com.example.project.post.entity;
 import com.example.project.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @Table(name = "posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,6 +27,8 @@ public class Post extends BaseEntity {
     public Post(String title, String content) {
         this.title = title;
         this.content = content;
+        this.likeCount = 0L;
+        this.commentCount = 0L;
     }
 
     // 기능
