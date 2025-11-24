@@ -20,11 +20,13 @@ public class UserService {
 
     public CreateUserResponse createUser(CreateUserRequest request) {
 
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         User user = new User(
                 request.getUserName(),
                 request.getEmail(),
                 request.getNickname(),
-                request.getPassword()
+                encodedPassword
         );
 
         User savedUser = userRepository.save(user);
