@@ -98,7 +98,8 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        userRepository.delete(user);
+        //userRepository.delete(user);
+        user.softDelete();
     }
 
     public User findUserOrException(Long userId) {
