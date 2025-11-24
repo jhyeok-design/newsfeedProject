@@ -1,6 +1,7 @@
 package com.example.project.user.service;
 
 import com.example.project.common.entity.User;
+import com.example.project.common.utils.PasswordEncoder;
 import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
 import com.example.project.user.model.response.CreateUserResponse;
@@ -13,18 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public CreateUserResponse createUser(CreateUserRequest request) {
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         User user = new User(
                 request.getUserName(),
                 request.getEmail(),
                 request.getNickname(),
-                request.getPassword()
+                encodedPassword
         );
 
         User savedUser = userRepository.save(user);
