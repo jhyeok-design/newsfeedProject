@@ -1,6 +1,8 @@
 package com.example.project.user.service;
 
 import com.example.project.common.entity.User;
+import com.example.project.common.exception.CustomException;
+import com.example.project.common.exception.ErrorCode;
 import com.example.project.common.utils.PasswordEncoder;
 import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
@@ -49,9 +51,19 @@ public class UserService {
     public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
         User user = findUserOrException(userId);
 
+        if (!passwordEncoder.matches (request.getCurrentPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.SAME_PASSWORD);
+        }
+
+        passwordEncoder.encode(request.getNewPassword());
+
         user.updateUser(
                 request.getNickname(),
-                request.getPassword()
+                request.getNewPassword()
         );
 
         return UpdateUserResponse.from(user);

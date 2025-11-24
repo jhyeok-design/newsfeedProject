@@ -1,6 +1,5 @@
 package com.example.project.user.model.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -27,5 +26,6 @@ public class UpdateUserRequest {
 
     @NotBlank(message = "비밀번호는 필수입니다.")
     @Size(min = 6, message = "비밀번호가 너무 짧습니다.")
-    private String password;
+    private String currentPassword;
+    private String newPassword;
 }
