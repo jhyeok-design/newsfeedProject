@@ -6,6 +6,7 @@ import com.example.project.user.model.response.CreateUserResponse;
 import com.example.project.user.model.response.GetUserResponse;
 import com.example.project.user.model.response.UpdateUserResponse;
 import com.example.project.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<CreateUserResponse> createUser(
-            @RequestBody CreateUserRequest request
+            @Valid @RequestBody CreateUserRequest request
     ) {
         CreateUserResponse result = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -36,7 +37,7 @@ public class UserController {
     // 내 정보 수정
     @PatchMapping("/users/me")
     public ResponseEntity<UpdateUserResponse> updateUser(
-            @RequestBody UpdateUserRequest request
+            @Valid @RequestBody UpdateUserRequest request
     ) {
         UpdateUserResponse result = userService.updateUser(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
