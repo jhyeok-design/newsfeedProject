@@ -92,8 +92,8 @@ public class PostService {
                 () -> new IllegalStateException(POST_NOT_FOUND.getMessage())
         );
 
-        Post updatedPost = post.updatePost(request);
+        post.updatePost(request);
 
-        return UpdatePostResponse.from(updatedPost);
+        return UpdatePostResponse.from(post);
     }
 }
