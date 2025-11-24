@@ -23,6 +23,7 @@ public class Post extends BaseEntity {
     private Long userId;
     private Long likeCount;
     private Long commentCount;
+    private boolean isDeleted;
 
     // 생성자
     public Post(String title, String content) {
@@ -30,6 +31,7 @@ public class Post extends BaseEntity {
         this.content = content;
         this.likeCount = 0L;
         this.commentCount = 0L;
+        this.isDeleted = false;
     }
 
     public Post updatePost(UpdatePostRequest request) {
@@ -40,4 +42,7 @@ public class Post extends BaseEntity {
     }
 
     // 기능
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
