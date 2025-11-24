@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+
+    // 전체 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
+    List<Post> findAllByIsDeletedFalseOrderByCreatedAtDesc();
+
     // 유저 ID를 기준으로 전체 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
     List<Post> findByUserIdAndIsDeletedFalseOrderByCreatedAtDesc(Long userID);
 

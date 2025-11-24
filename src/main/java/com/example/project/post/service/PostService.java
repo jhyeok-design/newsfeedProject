@@ -1,12 +1,12 @@
 package com.example.project.post.service;
 
 import com.example.project.post.dto.*;
+import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.entity.Post;
 import com.example.project.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
 import static com.example.project.common.exception.ErrorCode.POST_NOT_FOUND;
 
 @Service
@@ -37,11 +37,9 @@ public class PostService {
      * @return ReadPostResponse 리스트
      */
     public List<ReadPostResponse> getAll() {
-        List<Post> postList = postRepository.findAll();
+        List<Post> postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
 
-        return postList.stream()
-                .map(ReadPostResponse::new)     // == .map(post -> new ReadPostResponse(post))
-                .toList();
+        return postList.stream().map(ReadPostResponse::from).toList(); // == .map(post -> new ReadPostResponse(post))
     }
 
     /**
@@ -53,21 +51,21 @@ public class PostService {
         // 유저 ID를 기준으로 전체 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
         List<Post> posts = postRepository.findByUserIdAndIsDeletedFalseOrderByCreatedAtDesc(userID);
 
-        return posts.stream().map(ReadPostResponse::new).toList();
+        return posts.stream().map(ReadPostResponse::from).toList();
     }
 
     /**
      * 게시물 단건 조회
      * @param userID 로그인한 유저 ID
      * @param postID 조회할 게시물 ID
-     * @return
+     * @return ReadPostResponse DTO
      */
     public ReadPostResponse getOne(Long userID, Long postID) {
         // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postID)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
 
-        return new ReadPostResponse(post);
+        return ReadPostResponse.from(post);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.example.project.post.controller;
 
 import com.example.project.post.dto.*;
+import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,9 +52,7 @@ public class PostController {
      * @return 조회된 게시물의 Response DTO의 리스트, 200(OK) 상태 코드
      */
     @GetMapping("users/{userID}/posts/me")
-    public ResponseEntity<List<ReadPostResponse>> getAllPostMe(
-            @PathVariable Long userID
-    ) {
+    public ResponseEntity<List<ReadPostResponse>> getAllPostMe(@PathVariable Long userID) {
         List<ReadPostResponse> result = postService.getAllMe(userID);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -65,10 +64,7 @@ public class PostController {
      * @return 조회된 게시물의 Response DTO, 200(OK) 상태 코드
      */
     @GetMapping("users/{userID}/posts/{postID}")
-    public ResponseEntity<ReadPostResponse> getOnePost(
-            @PathVariable Long userID,
-            @PathVariable Long postID
-    ) {
+    public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long userID, @PathVariable Long postID) {
         ReadPostResponse result = postService.getOne(userID, postID);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -81,7 +77,6 @@ public class PostController {
      */
     @PutMapping("/posts/{postId}")
     public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId, @RequestBody UpdatePostRequest request) {
-
         UpdatePostResponse result = postService.updatePost(postId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -93,10 +88,7 @@ public class PostController {
      * @return 204(NO_CONTENT) 상태 코드
      */
     @DeleteMapping("users/{userID}/posts/{postID}")
-    public ResponseEntity<Void> deletePost(
-            @PathVariable Long userID,
-            @PathVariable Long postID
-    ) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long userID, @PathVariable Long postID) {
         postService.delete(userID, postID);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
