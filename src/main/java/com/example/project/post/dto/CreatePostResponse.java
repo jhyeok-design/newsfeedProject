@@ -29,6 +29,5 @@ public class CreatePostResponse {
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );
-
     }
 }

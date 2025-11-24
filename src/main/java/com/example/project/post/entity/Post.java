@@ -1,6 +1,7 @@
 package com.example.project.post.entity;
 
 import com.example.project.common.entity.BaseEntity;
+import com.example.project.post.dto.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,6 +30,13 @@ public class Post extends BaseEntity {
         this.content = content;
         this.likeCount = 0L;
         this.commentCount = 0L;
+    }
+
+    public Post updatePost(UpdatePostRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+
+        return this;
     }
 
     // 기능
