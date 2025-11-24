@@ -13,8 +13,8 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // TODO: 시크릿 키 어떻게 할 지 (현재 하드코딩 .. 도 아닌 음 ..)
-    private static final String SECRET = "secret"; // 시크릿 키
+    // TODO: 시크릿 키 현재 하드코딩 (어떡하지 ..)
+    private static final String SECRET = "this-is-a-very-long-secret-key-for-jwt-token-1234567890"; // 시크릿 키
     // TODO: 유효 시간 짧게 변경 (테스트 아직 안 함)
     private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간
 
