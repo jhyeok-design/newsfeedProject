@@ -30,5 +30,4 @@ public class CreatePostResponse {
                 post.getModifiedAt()
         );
     }
-public class CreatePostResponse {
 }

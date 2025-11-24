@@ -3,13 +3,11 @@ package com.example.project.post.dto;
 import com.example.project.post.entity.Post;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
 public class UpdatePostResponse {
-    // 속성
     private final Long id;
     private final String title;
     private final String content;
@@ -19,9 +17,6 @@ public class UpdatePostResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    // 생성자
-
-    // 기능
     public static UpdatePostResponse from(Post post) {
         return new UpdatePostResponse(
                 post.getId(),
@@ -34,5 +29,4 @@ public class UpdatePostResponse {
                 post.getModifiedAt()
         );
     }
-public class UpdatePostResponse {
 }

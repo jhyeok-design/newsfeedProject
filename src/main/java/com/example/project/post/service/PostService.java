@@ -7,7 +7,6 @@ import com.example.project.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
-
 import static com.example.project.common.exception.ErrorCode.POST_NOT_FOUND;
 
 @Service
@@ -40,7 +39,7 @@ public class PostService {
     public List<ReadPostResponse> getAll() {
         List<Post> postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
 
-        return postList.stream().map(ReadPostResponse::new).toList(); // == .map(post -> new ReadPostResponse(post))
+        return postList.stream().map(ReadPostResponse::from).toList(); // == .map(post -> new ReadPostResponse(post))
     }
 
     /**
@@ -52,7 +51,7 @@ public class PostService {
         // 유저 ID를 기준으로 전체 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
         List<Post> posts = postRepository.findByUserIdAndIsDeletedFalseOrderByCreatedAtDesc(userID);
 
-        return posts.stream().map(ReadPostResponse::new).toList();
+        return posts.stream().map(ReadPostResponse::from).toList();
     }
 
     /**
@@ -66,7 +65,7 @@ public class PostService {
         Post post = postRepository.findByIdAndIsDeletedFalse(postID)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
 
-        return new ReadPostResponse(post);
+        return ReadPostResponse.from(post);
     }
 
     /**
@@ -96,15 +95,5 @@ public class PostService {
         Post updatedPost = post.updatePost(request);
 
         return UpdatePostResponse.from(updatedPost);
-    }
-     * 내 게시물 전체 조회
-     * @param userID 유저의 고유 ID
-     * @return ReadPostResponse 리스트
-     */
-    public List<ReadPostResponse> getAllMe(Long userID) {
-        // 유저 ID를 기준으로 전체 조회, 생성일자 기준으로 내림차순
-        List<Post> posts = postRepository.findByUserIdOrderByCreatedAtDesc(userID);
-
-        return posts.stream().map(ReadPostResponse::new).toList();
     }
 }
