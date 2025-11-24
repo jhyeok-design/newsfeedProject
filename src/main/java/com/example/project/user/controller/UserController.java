@@ -33,12 +33,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 내 정보 수정
-    @PatchMapping("/users/me")
+    // 내 정보 수정 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
+    @PatchMapping("/users/{userId}")
     public ResponseEntity<UpdateUserResponse> updateUser(
+            @PathVariable Long userId,
             @RequestBody UpdateUserRequest request
     ) {
-        UpdateUserResponse result = userService.updateUser(request);
+        UpdateUserResponse result = userService.updateUser(userId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

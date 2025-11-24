@@ -46,10 +46,10 @@ public class UserService {
         return GetUserResponse.from(user);
     }
 
-    // 내 정보 수정
+    // 내 정보 수정 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
-    public UpdateUserResponse updateUser(UpdateUserRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
+    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("유저 없음")
         );
 
@@ -61,3 +61,4 @@ public class UserService {
         return UpdateUserResponse.from(user);
     }
 }
+
