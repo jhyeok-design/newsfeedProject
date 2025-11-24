@@ -27,6 +27,8 @@ public class Post extends BaseEntity {
     public Post(String title, String content) {
         this.title = title;
         this.content = content;
+        this.likeCount = 0L;
+        this.commentCount = 0L;
     }
 
     // 기능
