@@ -28,4 +28,10 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.password = password;
     }
+
+    // 유저의 닉네임, 비밀번호 수정
+    public void updateUser(String nickname, String password) {
+        this.nickname = nickname;
+        this.password = password;
+    }
 }
