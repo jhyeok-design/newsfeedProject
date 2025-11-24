@@ -60,7 +60,7 @@ public class UserService {
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     @Transactional
     public void deleteUser(Long userId) {
-        User user = findUserOrException(userId);
+        findUserOrException(userId);
 
         userRepository.deleteById(userId);
     }
