@@ -1,10 +1,7 @@
 package com.example.project.post.service;
 
 import com.example.project.common.entity.User;
-import com.example.project.common.exception.CustomException;
-import com.example.project.common.exception.ErrorCode;
-import com.example.project.common.exception.PostNotFoundException;
-import com.example.project.common.exception.UserNotFoundException;
+import com.example.project.common.exception.*;
 import com.example.project.post.dto.*;
 import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.common.entity.Post;
@@ -12,10 +9,13 @@ import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PostService {
 
     private final PostRepository postRepository;
@@ -61,6 +61,7 @@ public class PostService {
      * @param userID 로그인한 유저 ID
      * @return ReadPostResponse 리스트
      */
+    @Transactional(readOnly = true)
     public List<ReadPostResponse> getAllMe(Long userID) {
         // 유저 조회
         User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
@@ -75,25 +76,12 @@ public class PostService {
      * @param postID 조회할 게시물 ID
      * @return ReadPostResponse DTO
      */
+    @Transactional(readOnly = true)
     public ReadPostResponse getOne(Long postID) {
         // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
 
         return ReadPostResponse.from(post);
-    }
-
-    /**
-     * 게시물 삭제 (소프트 삭제)
-     * @param userID 로그인한 유저 ID
-     * @param postID 삭제할 게시물 ID
-     */
-    public void delete(Long userID, Long postID) {
-        // 유저 조회
-        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
-        // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-        Post post = postRepository.findByIdAndUserAndIsDeletedFalse(postID, user).orElseThrow(PostNotFoundException::new);
-
-        post.delete(); // 조회한 게시물 삭제 처리
     }
 
     /**
@@ -103,27 +91,45 @@ public class PostService {
      * @return 게시물 수정 응답 DTO
      */
     public UpdatePostResponse updatePost(Long userID, Long postId, UpdatePostRequest request) {
-        // 유저 조회
-        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-        Post post = postRepository.findByIdAndUserAndIsDeletedFalse(postId, user).orElseThrow(PostNotFoundException::new);
+        Post post = postRepository.findByIdAndIsDeletedFalse(postId).orElseThrow(PostNotFoundException::new);
 
-        /**
-         * 입력 값 유무에 따른 분기 처리
-         * 1. 요청에 제목과 내용이 없을 때
-         * 2. 요청에 제목만 입력되어있을 때
-         * 3. 요청에 내용만 입력되어있을 때
-         */
-        if (request.getTitle().isEmpty() && request.getContent().isEmpty()) {   // 입력된 값이 없을 때
+        isOwner(userID, post);
+
+        // 아무 정보도 안 줬을 경우
+        if ((request.getTitle() == null || request.getTitle().isEmpty())
+                && (request.getContent() == null || request.getContent().isEmpty()))
             throw new CustomException(ErrorCode.EMPTY_POST_UPDATE);
-        } else if (request.getTitle().isEmpty()) {  // 내용만 수정할 때
-            request.setTitle(post.getTitle());
-        } else if(request.getContent().isEmpty()) { // 제목만 수정할 때
-            request.setContent(post.getContent());
-        }
 
-        post.updatePost(request);
+        post.update(request);
 
         return UpdatePostResponse.from(post);
     }
+
+    /**
+     * 게시물 삭제 (소프트 삭제)
+     * @param userID 로그인한 유저 ID
+     * @param postID 삭제할 게시물 ID
+     */
+    public void delete(Long userID, Long postID) {
+        // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
+        Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
+
+        isOwner(userID, post);
+
+        post.delete(); // 조회한 게시물 삭제 처리
+    }
+
+    /**
+     * 유저가 게시물의 작성자인지 확인
+     * @param userID 로그인한 유저 ID
+     * @param post 게시물
+     */
+    private void isOwner(Long userID, Post post) {
+        // 유저 조회
+        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
+        // 유저가 게시물의 작성자가 아니면 예외처리
+        if (!post.getUser().equals(user)) throw new NotResourceOwnerException()
+    }
+
 }
