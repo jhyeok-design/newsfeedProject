@@ -63,9 +63,9 @@ public class UserService {
         return GetUserResponse.from(user);
     }
 
-    // 내 정보 수정 (로그인 기능 적용 전까지 userId 임시 사용)
+    // 내 정보 수정
     @Transactional
-    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
+    public UpdateUserResponse updateMe(Long userId, UpdateUserRequest request) {
         User user = findUserOrException(userId);
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
@@ -86,7 +86,7 @@ public class UserService {
         return UpdateUserResponse.from(user);
     }
 
-    // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
+    // 회원 탈퇴
     @Transactional
     public void deleteUser(Long userId, String rawPassword) {
 

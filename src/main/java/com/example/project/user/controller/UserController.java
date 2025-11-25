@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,21 +44,26 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 내 정보 수정 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
-    @PatchMapping("/users/{userId}")
-    public ResponseEntity<UpdateUserResponse> updateUser(
-            @PathVariable Long userId,
+    // 내 정보 수정
+    @PatchMapping("/users/me")
+    public ResponseEntity<UpdateUserResponse> updateMe(
             @Valid @RequestBody UpdateUserRequest request) {
-        UpdateUserResponse result = userService.updateUser(userId, request);
+        Long userId = (Long) SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getPrincipal();
+
+        UpdateUserResponse result = userService.updateMe(userId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 회원 삭제 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
-    // 세션이나 토큰 없이는 '나'임을 증명할 방법이 RequestBody 이정도 뿐이다
-    @DeleteMapping("/users/{userId}")
+    // 회원 탈퇴
+    @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Long userId,
             @Valid @RequestBody DeleteUserRequest request) {
+        Long userId = (Long) SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getPrincipal();
+
         userService.deleteUser(userId, request.getPassword());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
