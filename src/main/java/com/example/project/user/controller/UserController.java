@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -69,15 +68,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 회원 탈퇴
+    // 회원정보 논리적 삭제
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
             @Valid @RequestBody DeleteUserRequest request) {
-        Long userId = (Long) SecurityContextHolder.getContext()
-                            .getAuthentication()
-                            .getPrincipal();
-
-        userService.deleteUser(userId, request.getPassword());
+        userService.deleteUser(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
