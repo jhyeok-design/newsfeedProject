@@ -1,6 +1,7 @@
 package com.example.project.post.entity;
 
 import com.example.project.common.entity.BaseEntity;
+import com.example.project.common.entity.User;
 import com.example.project.post.dto.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,15 +16,18 @@ public class Post extends BaseEntity {
     // 속성
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 게시물 고유 ID
     @Column(length = 50, nullable = false)
-    private String title;
+    private String title; // 제목
     @Column(nullable = false)
-    private String content;
-    private Long userId;
-    private Long likeCount;
-    private Long commentCount;
-    private boolean isDeleted;
+    private String content; // 내용
+    private Long likeCount; // 좋아요 수
+    private Long commentCount; // 댓글 수
+    private boolean isDeleted; // 삭제 여부
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user; // 유저
 
     // 생성자
     public Post(String title, String content) {
@@ -34,11 +38,9 @@ public class Post extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public Post updatePost(UpdatePostRequest request) {
+    public void updatePost(UpdatePostRequest request) {
         this.title = request.getTitle();
         this.content = request.getContent();
-
-        return this;
     }
 
     // 기능

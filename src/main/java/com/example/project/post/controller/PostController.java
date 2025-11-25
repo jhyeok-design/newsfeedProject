@@ -65,7 +65,7 @@ public class PostController {
      */
     @GetMapping("users/{userID}/posts/{postID}")
     public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long userID, @PathVariable Long postID) {
-        ReadPostResponse result = postService.getOne(userID, postID);
+        ReadPostResponse result = postService.getOne(postID);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -75,9 +75,10 @@ public class PostController {
      * @param request 수정할 게시물 정보 ReadResponse DTO
      * @return 수정된 게시물의 Response DTO
      */
-    @PutMapping("/posts/{postId}")
-    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId, @RequestBody UpdatePostRequest request) {
-        UpdatePostResponse result = postService.updatePost(postId, request);
+    @PutMapping("users/{userID}/posts/{postId}")
+    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long userID, @PathVariable Long postId,
+                                                         @RequestBody UpdatePostRequest request) {
+        UpdatePostResponse result = postService.updatePost(userID, postId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

@@ -13,6 +13,7 @@ public class CreatePostResponse {
     private final String title;
     private final String content;
     private final long userId;
+    private final String userNickname;
     private final long likeCount;
     private final long commentCount;
     private final LocalDateTime createdAt;
@@ -23,7 +24,8 @@ public class CreatePostResponse {
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
-                post.getUserId(),
+                post.getUser().getId(),
+                post.getUser().getNickname(),
                 post.getLikeCount(),
                 post.getCommentCount(),
                 post.getCreatedAt(),
