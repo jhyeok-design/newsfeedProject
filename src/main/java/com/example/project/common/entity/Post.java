@@ -28,12 +28,13 @@ public class Post extends BaseEntity {
     private User user; // 유저
 
     // 생성자
-    public Post(String title, String content) {
+    public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
         this.likeCount = 0L;
         this.commentCount = 0L;
         this.isDeleted = false;
+        this.user = user;
     }
 
     public void update(UpdatePostRequest request) {

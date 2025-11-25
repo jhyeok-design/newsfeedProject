@@ -8,6 +8,7 @@ import com.example.project.common.entity.Post;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +29,12 @@ public class PostService {
      */
     public CreatePostResponse createPost(CreatePostRequest request) {
 
+        Long userId = getCurrentUserId();
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Post post = new Post(
                 request.getTitle(),
-                request.getContent()
+                request.getContent(),
+                user
         );
 
         Post savedPost = postRepository.save(post);
@@ -99,7 +103,7 @@ public class PostService {
         // 아무 정보도 안 줬을 경우
         if ((request.getTitle() == null || request.getTitle().isEmpty())
                 && (request.getContent() == null || request.getContent().isEmpty()))
-            throw new CustomException(ErrorCode.EMPTY_POST_UPDATE);
+            throw new EmptyPostUpdateException();
 
         post.update(request);
 
@@ -130,6 +134,17 @@ public class PostService {
         User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
         // 유저가 게시물의 작성자가 아니면 예외처리
         if (!post.getUser().equals(user)) throw new NotResourceOwnerException();
+    }
+
+    /**
+     * 현재 로그인된 User의 userId 반환
+     * @return userId
+     */
+    private Long getCurrentUserId() {
+        return (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 
 }
