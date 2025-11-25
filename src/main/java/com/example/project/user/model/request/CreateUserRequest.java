@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class CreateUserRequest {
 
-    @NotBlank(message = "email형식이 필요합니다.")
+    @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")
     private String email;
 
@@ -26,6 +26,10 @@ public class CreateUserRequest {
     private String userName;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Size(min = 6, message = "비밀번호가 너무 짧습니다.")
+    @Size(min = 8, message = "비밀번호는 8자 이상이여야 합니다.")
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).*$",
+            message = "비밀번호는 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 이상 포함해야 합니다."
+    )
     private String password;
 }

@@ -4,10 +4,7 @@ import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.DeleteUserRequest;
 import com.example.project.user.model.request.LoginRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
-import com.example.project.user.model.response.CreateUserResponse;
-import com.example.project.user.model.response.GetUserResponse;
-import com.example.project.user.model.response.LoginResponse;
-import com.example.project.user.model.response.UpdateUserResponse;
+import com.example.project.user.model.response.*;
 import com.example.project.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +57,14 @@ public class UserController {
     @GetMapping("/users/me")
     public ResponseEntity<GetUserResponse> getMe() {
         GetUserResponse result = userService.getMe();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 타 회원 마이페이지 조회 - 일반 정보만 노출하는 응답 객체
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<GetOtherUserResponse> getOtherUser(
+            @PathVariable Long userId) {
+        GetOtherUserResponse result = userService.getOtherUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
