@@ -34,6 +34,10 @@ public class User extends BaseEntity {
     // 삭제 시간 기록용
     private LocalDateTime deletedAt;
 
+    // 로그아웃 시 토큰 버전 저장
+    @Column(nullable = false)
+    private Integer tokenVersion = 0;
+
     public User(String userName, String email, String nickname, String password) {
         this.userName = userName;
         this.email = email;
@@ -51,5 +55,10 @@ public class User extends BaseEntity {
     public void softDelete() {
         this.deleted = true;
         this.deletedAt = LocalDateTime.now();
+    }
+
+    // 토큰 버전 증가
+    public void increaseTokenVersion() {
+        this.tokenVersion++;
     }
 }
