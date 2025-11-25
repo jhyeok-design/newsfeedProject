@@ -41,8 +41,9 @@ public class PostController {
      * @return 조회된 게시물 DTO의 리스트
      */
     @GetMapping("/posts")
-    public ResponseEntity<List<ReadPostResponse>> getAllPost() {
-        List<ReadPostResponse> resultList = postService.getAll();
+    public ResponseEntity<List<ReadPostResponse>> getAllPost(@RequestParam("userId") Long userId) {
+
+        List<ReadPostResponse> resultList = postService.getAll(userId);
         return ResponseEntity.status(HttpStatus.OK).body(resultList);
     }
 

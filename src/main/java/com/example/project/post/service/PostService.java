@@ -42,11 +42,17 @@ public class PostService {
      * 게시물 전체 조회
      * @return ReadPostResponse 리스트
      */
-    @Transactional(readOnly = true)
-    public List<ReadPostResponse> getAll() {
-        List<Post> postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
+    public List<ReadPostResponse> getAll(Long userId) {
+        List<Post> postList;
 
-        return postList.stream().map(ReadPostResponse::from).toList(); // == .map(post -> new ReadPostResponse(post))
+        if (userId == null) {
+            postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
+        } else {
+            User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+            postList = postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user);
+        }
+
+        return postList.stream().map(ReadPostResponse::from).toList();
     }
 
     /**
@@ -123,7 +129,7 @@ public class PostService {
         // 유저 조회
         User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
         // 유저가 게시물의 작성자가 아니면 예외처리
-        if (!post.getUser().equals(user)) throw new NotResourceOwnerException();
+        if (!post.getUser().equals(user)) throw new NotResourceOwnerException()
     }
 
 }
