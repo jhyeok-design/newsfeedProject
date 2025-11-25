@@ -21,8 +21,7 @@ public class JwtUtil {
 
     // TODO: 시크릿 키 현재 하드코딩 (어떡하지 ..)
     private static final String SECRET = "this-is-a-very-long-secret-key-for-jwt-token-1234567890"; // 시크릿 키
-    // TODO: 유효 시간 짧게 변경 (테스트 아직 안 함)
-    private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간
+    private static final long TOKEN_EXPIRE_TIME = 3 * 60 * 1000L; // 토큰 유효 기간 (3분)
 
     // 서명 키 생성
     private Key getSignKey() {
