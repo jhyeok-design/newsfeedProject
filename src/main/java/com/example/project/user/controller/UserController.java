@@ -31,9 +31,18 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request) {
         LoginResponse result = userService.login(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        userService.logout(userId);
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/users/{userId}")
@@ -43,12 +52,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 내 정보 수정 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
-    @PatchMapping("/users/{userId}")
-    public ResponseEntity<UpdateUserResponse> updateUser(
-            @PathVariable Long userId,
+    // 내 정보 수정
+    @PatchMapping("/users/me")
+    public ResponseEntity<UpdateUserResponse> updateMe(
             @Valid @RequestBody UpdateUserRequest request) {
-        UpdateUserResponse result = userService.updateUser(userId, request);
+        Long userId = (Long) SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getPrincipal();
+
+        UpdateUserResponse result = userService.updateMe(userId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

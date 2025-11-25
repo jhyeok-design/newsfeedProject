@@ -54,8 +54,17 @@ public class UserService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
-        String token = jwtUtil.generateToken(user.getId());
+        String token = jwtUtil.generateToken(user);
         return new LoginResponse(token);
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+        user.increaseTokenVersion();
     }
 
     @Transactional(readOnly = true)
@@ -65,9 +74,9 @@ public class UserService {
         return GetUserResponse.from(user);
     }
 
-    // 내 정보 수정 (로그인 기능 적용 전까지 userId 임시 사용)
+    // 내 정보 수정
     @Transactional
-    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
+    public UpdateUserResponse updateMe(Long userId, UpdateUserRequest request) {
         User user = findUserOrException(userId);
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
@@ -101,6 +110,7 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
+        //userRepository.delete(user);
         user.softDelete();
     }
 
