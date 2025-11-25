@@ -1,21 +1,25 @@
 package com.example.project.post.service;
 
+import com.example.project.common.entity.User;
 import com.example.project.common.exception.CustomException;
 import com.example.project.common.exception.ErrorCode;
+import com.example.project.common.exception.PostNotFoundException;
+import com.example.project.common.exception.UserNotFoundException;
 import com.example.project.post.dto.*;
 import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.entity.Post;
 import com.example.project.post.repository.PostRepository;
+import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import static com.example.project.common.exception.ErrorCode.POST_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     /**
      * 게시물 생성
@@ -46,53 +50,56 @@ public class PostService {
 
     /**
      * 내 게시물 전체 조회
-     * @param userID 유저 ID
+     * - 로그인한 유저를 기준으로 전체 조회
+     * @param userID 로그인한 유저 ID
      * @return ReadPostResponse 리스트
      */
     public List<ReadPostResponse> getAllMe(Long userID) {
-        // 유저 ID를 기준으로 전체 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
-        List<Post> posts = postRepository.findByUserIdAndIsDeletedFalseOrderByCreatedAtDesc(userID);
+        // 유저 조회
+        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
+        // 유저의 전체 게시물 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
+        List<Post> posts = postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user);
 
         return posts.stream().map(ReadPostResponse::from).toList();
     }
 
     /**
      * 게시물 단건 조회
-     * @param userID 로그인한 유저 ID
      * @param postID 조회할 게시물 ID
      * @return ReadPostResponse DTO
      */
-    public ReadPostResponse getOne(Long userID, Long postID) {
+    public ReadPostResponse getOne(Long postID) {
         // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-        Post post = postRepository.findByIdAndIsDeletedFalse(postID)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
+        Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
 
         return ReadPostResponse.from(post);
     }
 
     /**
-     * 게시물 삭제 (실제로 삭제하는 것은 아님)
+     * 게시물 삭제 (소프트 삭제)
      * @param userID 로그인한 유저 ID
-     * @param postID 조회한 게시물 ID
+     * @param postID 삭제할 게시물 ID
      */
     public void delete(Long userID, Long postID) {
-        // 게시물 조회
-        Post post = postRepository.findById(postID)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
+        // 유저 조회
+        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
+        // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
+        Post post = postRepository.findByIdAndUserAndIsDeletedFalse(postID, user).orElseThrow(PostNotFoundException::new);
 
         post.delete(); // 조회한 게시물 삭제 처리
     }
 
     /**
-     *
-     * @param postId 게시물 ID
+     * 게시물 수정
+     * @param postId 수정할 게시물 ID
      * @param request 게시물
-     * @return UpdatePostResponse DTO
+     * @return 게시물 수정 응답 DTO
      */
-    public UpdatePostResponse updatePost(Long postId, UpdatePostRequest request) {
-        Post post = postRepository.findById(postId).orElseThrow(
-                () -> new IllegalStateException(POST_NOT_FOUND.getMessage())
-        );
+    public UpdatePostResponse updatePost(Long userID, Long postId, UpdatePostRequest request) {
+        // 유저 조회
+        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
+        // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
+        Post post = postRepository.findByIdAndUserAndIsDeletedFalse(postId, user).orElseThrow(PostNotFoundException::new);
 
         if (request.getTitle().isEmpty() && request.getContent().isEmpty()) {
             throw new CustomException(ErrorCode.EMPTY_POST_UPDATE);
