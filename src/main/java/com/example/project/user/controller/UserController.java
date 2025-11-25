@@ -13,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,6 +36,15 @@ public class UserController {
             @RequestBody LoginRequest request) {
         LoginResponse result = userService.login(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        userService.logout(userId);
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/users/{userId}")

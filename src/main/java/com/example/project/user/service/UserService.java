@@ -52,8 +52,17 @@ public class UserService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
-        String token = jwtUtil.generateToken(user.getId());
+        String token = jwtUtil.generateToken(user);
         return new LoginResponse(token);
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logout(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+        user.increaseTokenVersion();
     }
 
     @Transactional(readOnly = true)
