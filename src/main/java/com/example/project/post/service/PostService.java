@@ -129,7 +129,7 @@ public class PostService {
         // 유저 조회
         User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
         // 유저가 게시물의 작성자가 아니면 예외처리
-        if (!post.getUser().equals(user)) throw new NotResourceOwnerException()
+        if (!post.getUser().equals(user)) throw new NotResourceOwnerException();
     }
 
 }
