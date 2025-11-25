@@ -1,22 +1,27 @@
 package com.example.project.security.jwt;
 
+import com.example.project.common.entity.User;
+import com.example.project.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+@RequiredArgsConstructor
 @Component
 public class JwtUtil {
 
+    private final UserRepository userRepository;
+
     // TODO: 시크릿 키 현재 하드코딩 (어떡하지 ..)
     private static final String SECRET = "this-is-a-very-long-secret-key-for-jwt-token-1234567890"; // 시크릿 키
-    // TODO: 유효 시간 짧게 변경 (테스트 아직 안 함)
-    private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간
+    private static final long TOKEN_EXPIRE_TIME = 3 * 60 * 1000L; // 토큰 유효 기간 (3분)
 
     // 서명 키 생성
     private Key getSignKey() {
@@ -24,24 +29,31 @@ public class JwtUtil {
     }
 
     // JWT 생성
-    public String generateToken(Long userId) {
+    public String generateToken(User user) {
 
         // 토큰 만료 시간
         Date now = new Date();
         Date expiry = new Date(now.getTime() + TOKEN_EXPIRE_TIME);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(String.valueOf(user.getId()))
+                .claim("tokenVersion", user.getTokenVersion())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // userId 호출
+    // userId 반환
     public Long getUserIdFromToken(String token) {
         Claims claims = parseClaims(token);
         return Long.parseLong(claims.getSubject());
+    }
+
+    // tokenVersion 반환
+    public Integer getTokenVersionFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return claims.get("tokenVersion", Integer.class);
     }
 
     // 토큰 검증
