@@ -1,7 +1,6 @@
 package com.example.project.user.model.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
