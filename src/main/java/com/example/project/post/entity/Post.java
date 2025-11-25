@@ -38,11 +38,9 @@ public class Post extends BaseEntity {
         this.isDeleted = false;
     }
 
-    public Post updatePost(UpdatePostRequest request) {
+    public void updatePost(UpdatePostRequest request) {
         this.title = request.getTitle();
         this.content = request.getContent();
-
-        return this;
     }
 
     // 기능

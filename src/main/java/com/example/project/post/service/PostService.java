@@ -1,5 +1,7 @@
 package com.example.project.post.service;
 
+import com.example.project.common.exception.CustomException;
+import com.example.project.common.exception.ErrorCode;
 import com.example.project.post.dto.*;
 import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.entity.Post;
@@ -92,8 +94,16 @@ public class PostService {
                 () -> new IllegalStateException(POST_NOT_FOUND.getMessage())
         );
 
-        Post updatedPost = post.updatePost(request);
+        if (request.getTitle().isEmpty() && request.getContent().isEmpty()) {
+            throw new CustomException(ErrorCode.EMPTY_POST_UPDATE);
+        } else if (request.getTitle().isEmpty()) {
+            request.setTitle(post.getTitle());
+        } else if(request.getContent().isEmpty()) {
+            request.setContent(post.getContent());
+        }
 
-        return UpdatePostResponse.from(updatedPost);
+        post.updatePost(request);
+
+        return UpdatePostResponse.from(post);
     }
 }
