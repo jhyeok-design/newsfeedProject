@@ -35,11 +35,12 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // 회원가입, 로그인만 접근 가능
-                // TODO: 권한 설정 다시 수정
+                // 접근 권한 설정
+                // URL 겹치는 부분만 권한 다시 특정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/signup", "/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/*", "/posts", "/users/*/posts/*").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/users/me", "/users/*/posts/me").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

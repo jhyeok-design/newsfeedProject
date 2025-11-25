@@ -23,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<CreateUserResponse> createUser(
             @Valid @RequestBody CreateUserRequest request) {
@@ -47,9 +48,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    // 유저 조회
     @GetMapping("/users/{userId}")
     public ResponseEntity<GetUserResponse> getUser(
-            @PathVariable long userId) {
+            @PathVariable Long userId) {
         GetUserResponse result = userService.findUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
