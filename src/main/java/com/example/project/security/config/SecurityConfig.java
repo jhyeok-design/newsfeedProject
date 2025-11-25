@@ -39,8 +39,8 @@ public class SecurityConfig {
                 // URL 겹치는 부분만 권한 다시 특정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/signup", "/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users/*", "/posts", "/users/*/posts/*").permitAll()
                         .requestMatchers(HttpMethod.GET,"/users/me", "/users/*/posts/me").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/users/*", "/posts", "/users/*/posts/*").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
