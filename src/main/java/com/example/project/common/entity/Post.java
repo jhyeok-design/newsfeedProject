@@ -37,12 +37,12 @@ public class Post extends BaseEntity {
         this.user = user;
     }
 
+    // 기능
     public void update(UpdatePostRequest request) {
         this.title = (request.getTitle() != null && !request.getTitle().isEmpty()) ? request.getTitle() : this.title;
         this.content = (request.getContent() != null && !request.getContent().isEmpty()) ? request.getContent() : this.content;
     }
 
-    // 기능
     public void delete() {
         this.isDeleted = true;
     }

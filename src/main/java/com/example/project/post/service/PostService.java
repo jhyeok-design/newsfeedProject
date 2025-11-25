@@ -46,33 +46,17 @@ public class PostService {
 
     /**
      * 게시물 전체 조회
-     * @return ReadPostResponse 리스트
+     * - 유저 ID가 없으면 모든 게시물 조회
+     * - 유저 ID가 있으면 유저의 게시물 전체 조회
+     * @param userId 조회할 유저 ID (선택)
+     * @return 조회 응답 DTO 리스트
      */
-    public List<ReadPostResponse> getAll(Long userId) {
-        List<Post> postList;
-
-        if (userId == null) {
-            postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
-        } else {
-            User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-            postList = postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user);
-        }
-
-        return postList.stream().map(ReadPostResponse::from).toList();
-    }
-
-    /**
-     * 내 게시물 전체 조회
-     * - 로그인한 유저를 기준으로 전체 조회
-     * @param userID 로그인한 유저 ID
-     * @return ReadPostResponse 리스트
-     */
-    @Transactional(readOnly = true)
-    public List<ReadPostResponse> getAllMe(Long userID) {
-        // 유저 조회
-        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
-        // 유저의 전체 게시물 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
-        List<Post> posts = postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user);
+    public List<ReadPostResponse> getAllPost(Long userId) {
+        // 유저 조회 (userId가 null이면, null)
+        User user = userId == null ? null
+                : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        // 게시물 조회
+        List<Post> posts = postRepository.findPosts(user);
 
         return posts.stream().map(ReadPostResponse::from).toList();
     }
@@ -89,7 +73,7 @@ public class PostService {
      * @return ReadPostResponse DTO
      */
     @Transactional(readOnly = true)
-    public ReadPostResponse getOne(Long postID) {
+    public ReadPostResponse getOnePost(Long postID) {
         // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
 
@@ -123,7 +107,7 @@ public class PostService {
      * @param userID 로그인한 유저 ID
      * @param postID 삭제할 게시물 ID
      */
-    public void delete(Long userID, Long postID) {
+    public void deletePost(Long userID, Long postID) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
 
