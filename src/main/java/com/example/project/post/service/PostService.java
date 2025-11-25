@@ -7,7 +7,7 @@ import com.example.project.common.exception.PostNotFoundException;
 import com.example.project.common.exception.UserNotFoundException;
 import com.example.project.post.dto.*;
 import com.example.project.post.dto.ReadPostResponse;
-import com.example.project.post.entity.Post;
+import com.example.project.common.entity.Post;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
