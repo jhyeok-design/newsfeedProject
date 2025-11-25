@@ -66,17 +66,26 @@ public class UserService {
         );
         user.increaseTokenVersion();
     }
-
+    
     @Transactional(readOnly = true)
     public GetUserResponse findUser(Long userId) {
         User user = findUserOrException(userId);
 
         return GetUserResponse.from(user);
     }
-
+    
+    // 마이페이지 조회
+    @Transactional(readOnly = true)
+    public GetUserResponse getMe() {
+        Long userId = getCurrentUserId();
+        User user = findUserOrException(userId);
+        return GetUserResponse.from(user);
+    }
+    
     // 내 정보 수정
     @Transactional
-    public UpdateUserResponse updateMe(Long userId, UpdateUserRequest request) {
+    public UpdateUserResponse updateMe(UpdateUserRequest request) {
+        Long userId = getCurrentUserId();
         User user = findUserOrException(userId);
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {

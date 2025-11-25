@@ -56,15 +56,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    // 마이 페이지 조회
+    @GetMapping("/users/me")
+    public ResponseEntity<GetUserResponse> getMe() {
+        GetUserResponse result = userService.getMe();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
     // 내 정보 수정
     @PatchMapping("/users/me")
     public ResponseEntity<UpdateUserResponse> updateMe(
             @Valid @RequestBody UpdateUserRequest request) {
-        Long userId = (Long) SecurityContextHolder.getContext()
-                            .getAuthentication()
-                            .getPrincipal();
-
-        UpdateUserResponse result = userService.updateMe(userId, request);
+        UpdateUserResponse result = userService.updateMe(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
