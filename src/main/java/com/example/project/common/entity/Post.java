@@ -1,7 +1,5 @@
-package com.example.project.post.entity;
+package com.example.project.common.entity;
 
-import com.example.project.common.entity.BaseEntity;
-import com.example.project.common.entity.User;
 import com.example.project.post.dto.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
