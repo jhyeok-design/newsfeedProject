@@ -42,10 +42,17 @@ public class PostService {
      * 게시물 전체 조회
      * @return ReadPostResponse 리스트
      */
-    public List<ReadPostResponse> getAll() {
-        List<Post> postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
+    public List<ReadPostResponse> getAll(Long userId) {
+        List<Post> postList;
 
-        return postList.stream().map(ReadPostResponse::from).toList(); // == .map(post -> new ReadPostResponse(post))
+        if (userId == null) {
+            postList = postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc();
+        } else {
+            User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+            postList = postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user);
+        }
+
+        return postList.stream().map(ReadPostResponse::from).toList();
     }
 
     /**
@@ -101,11 +108,17 @@ public class PostService {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndUserAndIsDeletedFalse(postId, user).orElseThrow(PostNotFoundException::new);
 
-        if (request.getTitle().isEmpty() && request.getContent().isEmpty()) {
+        /**
+         * 입력 값 유무에 따른 분기 처리
+         * 1. 요청에 제목과 내용이 없을 때
+         * 2. 요청에 제목만 입력되어있을 때
+         * 3. 요청에 내용만 입력되어있을 때
+         */
+        if (request.getTitle().isEmpty() && request.getContent().isEmpty()) {   // 입력된 값이 없을 때
             throw new CustomException(ErrorCode.EMPTY_POST_UPDATE);
-        } else if (request.getTitle().isEmpty()) {
+        } else if (request.getTitle().isEmpty()) {  // 내용만 수정할 때
             request.setTitle(post.getTitle());
-        } else if(request.getContent().isEmpty()) {
+        } else if(request.getContent().isEmpty()) { // 제목만 수정할 때
             request.setContent(post.getContent());
         }
 
