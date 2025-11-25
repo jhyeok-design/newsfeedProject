@@ -9,10 +9,7 @@ import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.DeleteUserRequest;
 import com.example.project.user.model.request.LoginRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
-import com.example.project.user.model.response.CreateUserResponse;
-import com.example.project.user.model.response.GetUserResponse;
-import com.example.project.user.model.response.LoginResponse;
-import com.example.project.user.model.response.UpdateUserResponse;
+import com.example.project.user.model.response.*;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,6 +48,12 @@ public class UserService {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
+
+        // 논리삭제된 유저 제외
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
@@ -81,6 +84,21 @@ public class UserService {
         User user = findUserOrException(userId);
         return GetUserResponse.from(user);
     }
+
+    // 타 회원 마이페이지 조회
+    @Transactional(readOnly = true)
+    public GetOtherUserResponse getOtherUser(Long userId) {
+
+        // 논리삭제된 사용자 제외 기능 추가할것
+        // 논리삭제된 유저 제외
+        User user = findUserOrException(userId);
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+        
+        User otherUser = findUserOrException(userId);
+        return GetOtherUserResponse.from(otherUser);
+    }
     
     // 내 정보 수정
     @Transactional
@@ -109,7 +127,6 @@ public class UserService {
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     // 기존 : @PathVariable로 userId를 받아서 findById후 encodedPassword로 해당 유저의 인코딩된 비밀번호를 특정해서 대조함
     // 변경 : @PathVariable대신 JwtAuthenticationFilter의 SecurityContext에서 UserId를 가져와서 대조 (서비스 하단 메서드)
-    @Transactional
     public void deleteUser(DeleteUserRequest request) {
 
         Long userId = getCurrentUserId();
@@ -118,8 +135,7 @@ public class UserService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
-
-        //userRepository.delete(user);
+        
         user.softDelete();
     }
 
