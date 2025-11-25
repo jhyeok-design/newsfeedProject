@@ -52,13 +52,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 회원 삭제 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
-    // 세션이나 토큰 없이는 '나'임을 증명할 방법이 RequestBody 이정도 뿐이다
-    @DeleteMapping("/users/{userId}")
+    // 회원정보 논리적 삭제
+    @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Long userId,
             @Valid @RequestBody DeleteUserRequest request) {
-        userService.deleteUser(userId, request.getPassword());
+        userService.deleteUser(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
