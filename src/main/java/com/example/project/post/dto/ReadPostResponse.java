@@ -12,6 +12,7 @@ public class ReadPostResponse {
     private final String title;
     private final String content;
     private final Long userId;
+    private final String userNickname;
     private final Long likeCount;
     private final Long commentCount;
     private final LocalDateTime createdAt;
@@ -22,7 +23,8 @@ public class ReadPostResponse {
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
-                post.getUserId(),
+                post.getUser().getId(),
+                post.getUser().getNickname(),
                 post.getLikeCount(),
                 post.getCommentCount(),
                 post.getCreatedAt(),
