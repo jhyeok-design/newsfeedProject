@@ -8,6 +8,8 @@ import com.example.project.common.entity.Post;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +75,12 @@ public class PostService {
         List<Post> posts = postRepository.findByUserAndIsDeletedFalseOrderByCreatedAtDesc(user);
 
         return posts.stream().map(ReadPostResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReadPostResponse> getAllMePage(Pageable pageable) {
+        Page<Post> postpage = postRepository.findAll(pageable);
+        return postpage.map(ReadPostResponse::from);
     }
 
     /**

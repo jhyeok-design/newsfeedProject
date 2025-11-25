@@ -4,6 +4,10 @@ import com.example.project.post.dto.*;
 import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,6 +59,16 @@ public class PostController {
     @GetMapping("users/{userID}/posts/me")
     public ResponseEntity<List<ReadPostResponse>> getAllPostMe(@PathVariable Long userID) {
         List<ReadPostResponse> result = postService.getAllMe(userID);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("page")
+    public ResponseEntity<Page<ReadPostResponse>> getAllPostMePage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<ReadPostResponse> result = postService.getAllMePage(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
