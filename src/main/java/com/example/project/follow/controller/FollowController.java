@@ -20,7 +20,6 @@ public class FollowController {
 
     private final FollowService followService;
 
-
     // 팔로우하기
     @PostMapping
     public ResponseEntity<Void> saveFollow(
