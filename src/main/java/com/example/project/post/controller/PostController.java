@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
+import static com.example.project.security.util.SecurityUtil.getCurrentUserId;
 
 /**
  * 게시물 관련 요청을 받아 처리하는 Controller 클래스
@@ -30,17 +30,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
-    /**
-     * 현재 로그인된 User의 userId 반환
-     * @return userId
-     */
-    private Long getCurrentUserId() {
-        return (Long) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-    }
 
     /**
      * 게시물 생성
