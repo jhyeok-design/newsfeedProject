@@ -1,7 +1,5 @@
-package com.example.project.post.entity;
+package com.example.project.common.entity;
 
-import com.example.project.common.entity.BaseEntity;
-import com.example.project.common.entity.User;
 import com.example.project.post.dto.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -30,20 +28,21 @@ public class Post extends BaseEntity {
     private User user; // 유저
 
     // 생성자
-    public Post(String title, String content) {
+    public Post(String title, String content, User user) {
         this.title = title;
         this.content = content;
         this.likeCount = 0L;
         this.commentCount = 0L;
         this.isDeleted = false;
-    }
-
-    public void updatePost(UpdatePostRequest request) {
-        this.title = request.getTitle();
-        this.content = request.getContent();
+        this.user = user;
     }
 
     // 기능
+    public void update(UpdatePostRequest request) {
+        this.title = (request.getTitle() != null && !request.getTitle().isEmpty()) ? request.getTitle() : this.title;
+        this.content = (request.getContent() != null && !request.getContent().isEmpty()) ? request.getContent() : this.content;
+    }
+
     public void delete() {
         this.isDeleted = true;
     }
