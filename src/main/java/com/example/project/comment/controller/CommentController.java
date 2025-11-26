@@ -48,7 +48,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @RequestBody UpdateCommentRequest request) {
         Long currentUserId = getCurrentUserId();
-        UpdateCommentResponse result = commentService.update(currentUserId, postId, commentId, request.getComment());
+        UpdateCommentResponse result = commentService.update(currentUserId, postId, commentId, request.getNewComment());
         return ResponseEntity.status(HttpStatus.OK).body(result);
 
     }
