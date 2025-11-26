@@ -49,6 +49,7 @@ public class LikeService {
     }
 
     // 좋아요 삭제
+    @Transactional
     public LikeResponse unlike(Long currentUserId, Long postId) {
 
         // 좋아요 존재 확인
