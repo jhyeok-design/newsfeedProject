@@ -20,7 +20,6 @@ public class JwtUtil {
 
     private final UserRepository userRepository;
 
-    // TODO: 시크릿 키 현재 하드코딩 (어떡하지 ..)
     @Value("${jwt.secret}")
     private String secret;
     private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간 (3분)
