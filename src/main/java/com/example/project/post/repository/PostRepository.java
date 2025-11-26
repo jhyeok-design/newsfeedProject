@@ -3,21 +3,25 @@ package com.example.project.post.repository;
 import com.example.project.common.entity.User;
 import com.example.project.common.entity.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    // 전체 게시물 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
-    List<Post> findAllByIsDeletedFalseOrderByCreatedAtDesc();
-
-    // 유저의 전체 게시물 조회, 삭제 처리된 게시물은 조회 안됨, 생성일자 기준으로 내림차순
-    List<Post> findByUserAndIsDeletedFalseOrderByCreatedAtDesc(User user);
+    // user가 null이면 전체 조회, user가 있으면 user 필터 적용
+    // 삭제 처리가 안된 게시물을 생성일자 기준으로 내림차순
+    @Query("""
+        SELECT p FROM Post p
+        WHERE p.isDeleted = false
+          AND (:user IS NULL OR p.user = :user)
+        ORDER BY p.createdAt DESC
+    """)
+    List<Post> findPosts(@Param("user") User user);
 
     // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
     Optional<Post> findByIdAndIsDeletedFalse(Long postID);
 
-    // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-    Optional<Post> findByIdAndUserAndIsDeletedFalse(Long postID, User user);
 }

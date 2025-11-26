@@ -4,6 +4,10 @@ import com.example.project.post.dto.*;
 import com.example.project.post.dto.ReadPostResponse;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,23 +42,24 @@ public class PostController {
 
     /**
      * 게시물 전체 조회
+     * - 쿼리 파라미터로 유저 ID를 받아, 특정 유저의 전체 게시물 조회 가능
      * @return 조회된 게시물 DTO의 리스트
      */
     @GetMapping("/posts")
-    public ResponseEntity<List<ReadPostResponse>> getAllPost(@RequestParam("userId") Long userId) {
+    public ResponseEntity<List<ReadPostResponse>> getAllPost(
+            @RequestParam(name = "userId", required = false) Long userId) {
 
-        List<ReadPostResponse> resultList = postService.getAll(userId);
+        List<ReadPostResponse> resultList = postService.getAllPost(userId);
         return ResponseEntity.status(HttpStatus.OK).body(resultList);
     }
 
-    /**
-     * 내 게시물 전체 조회
-     * @param userID 유저 ID
-     * @return 조회된 게시물의 Response DTO의 리스트, 200(OK) 상태 코드
-     */
-    @GetMapping("users/{userID}/posts/me")
-    public ResponseEntity<List<ReadPostResponse>> getAllPostMe(@PathVariable Long userID) {
-        List<ReadPostResponse> result = postService.getAllMe(userID);
+    @GetMapping("page")
+    public ResponseEntity<Page<ReadPostResponse>> getAllPostMePage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<ReadPostResponse> result = postService.getAllMePage(pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -66,7 +71,7 @@ public class PostController {
      */
     @GetMapping("users/{userID}/posts/{postID}")
     public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long userID, @PathVariable Long postID) {
-        ReadPostResponse result = postService.getOne(postID);
+        ReadPostResponse result = postService.getOnePost(postID);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -91,7 +96,7 @@ public class PostController {
      */
     @DeleteMapping("users/{userID}/posts/{postID}")
     public ResponseEntity<Void> deletePost(@PathVariable Long userID, @PathVariable Long postID) {
-        postService.delete(userID, postID);
+        postService.deletePost(userID, postID);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
