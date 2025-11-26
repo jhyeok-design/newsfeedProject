@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -19,13 +20,13 @@ public class JwtUtil {
 
     private final UserRepository userRepository;
 
-    // TODO: 시크릿 키 현재 하드코딩 (어떡하지 ..)
-    private static final String SECRET = "this-is-a-very-long-secret-key-for-jwt-token-1234567890"; // 시크릿 키
+    @Value("${jwt.secret}")
+    private String secret;
     private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간 (3분)
 
     // 서명 키 생성
     private Key getSignKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     // JWT 생성
