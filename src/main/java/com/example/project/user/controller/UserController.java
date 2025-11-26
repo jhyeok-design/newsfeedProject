@@ -47,9 +47,9 @@ public class UserController {
 
     // 유저 조회
     @GetMapping("/users/{userId}")
-    public ResponseEntity<GetUserResponse> getUser(
+    public ResponseEntity<FindUserResponse> getUser(
             @PathVariable Long userId) {
-        GetUserResponse result = userService.findUser(userId);
+        FindUserResponse result = userService.findUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

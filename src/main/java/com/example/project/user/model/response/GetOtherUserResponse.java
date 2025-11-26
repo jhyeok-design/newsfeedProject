@@ -11,23 +11,25 @@ import java.time.LocalDateTime;
 public class GetOtherUserResponse {
 
     private final long id;
-    private final String email;
+    // private final String email;
     private final String nickname;
-    private final String userName;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime modifiedAt;
+    // private final String userName;
+    // private final LocalDateTime createdAt;
+    // private final LocalDateTime modifiedAt;
+    private final int followerCount;
+    private final int followingCount;
 
-
-    public static GetOtherUserResponse from(User user) {
+    public static GetOtherUserResponse from(User user, int followerCount, int followingCount) {
         return new GetOtherUserResponse(
                 user.getId(),
-                user.getEmail(),
+                //user.getEmail(),
                 user.getNickname(),
-                user.getUserName(),
-                user.getCreatedAt(),
-                user.getModifiedAt()
+                // user.getUserName(),
+                // user.getCreatedAt(),
+                // user.getModifiedAt()
+                followerCount,
+                followingCount
         );
     }
-
 
 }

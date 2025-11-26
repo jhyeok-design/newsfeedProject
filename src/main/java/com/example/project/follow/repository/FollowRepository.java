@@ -25,4 +25,9 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
     @EntityGraph(attributePaths = {"followers", "followings"})
     Page<Follow> findByFollowers(User followers,Pageable pageable);
 
+    // 해당 유저를 팔로우한 사람 수 (팔로워 수)
+    int countByFollowingsId(Long userId);
+    // 해당 유저가 팔로우한 사람 수 (팔로잉 수)
+    int countByFollowersId(Long userId);
+
 }
