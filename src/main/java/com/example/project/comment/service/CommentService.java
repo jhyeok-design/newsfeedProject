@@ -70,6 +70,10 @@ public class CommentService {
         commentByUserOrException(comments,currentUserId);
 
         commentRepository.delete(comments);
+        Post post = comments.getPost();
+
+        Long commentCount = commentRepository.countByPostId(postId);
+        post.updateCommentCount(commentCount);
     }
 
 
