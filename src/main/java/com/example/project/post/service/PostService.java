@@ -48,14 +48,14 @@ public class PostService {
      * 게시물 전체 조회 (페이징)
      * - 유저 ID가 없으면 모든 게시물 조회
      * - 유저 ID가 있으면 유저의 게시물 전체 조회
-     * - 페이징 없이도 조회 가능
      * @param userId 조회할 유저 ID (선택)
+     * @param startDate 시작일 (선택)
+     * @param endDate 종료일 (선택)
      * @param pageable 페이징 정보를 담고 있는 객체
      * @return 조회한 게시물이 있는 페이지
      */
     @Transactional(readOnly = true)
-    public Page<ReadPostResponse> getAllPost(Long userId, Pageable pageable,
-                                             LocalDate startDate, LocalDate endDate) {
+    public Page<ReadPostResponse> getAllPost(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         // 유저 조회 (userId가 null이면, null)
         User user = userId == null ? null
                 : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -63,8 +63,7 @@ public class PostService {
         LocalDateTime start = startDate == null ? null : startDate.atStartOfDay(); // 시간을 00:00:00으로 설정
         LocalDateTime end = endDate == null ? null : endDate.atTime(LocalTime.MAX); // 시간을 23:59:59로 설정
 
-        // 게시물 조회 (pageable이 Pageable.unpaged()이면 페이징 없이 조회)
-        Page<Post> posts = postRepository.findPosts(user, pageable, start, end);
+        Page<Post> posts = postRepository.findPosts(user, pageable, start, end); // 게시물 조회
 
         return posts.map(ReadPostResponse::from);
     }
@@ -76,10 +75,10 @@ public class PostService {
      * @return 조회한 게시물이 있는 페이지
      */
     public Page<ReadPostResponse> getFollowerPost(Long userId, Pageable pageable) {
-        // 유저 확인
-        if (userRepository.existsById(userId)) throw new UserNotFoundException();
 
-        Page<Post> posts = postRepository.findFollwerPosts(userId, pageable);
+        if (userRepository.existsById(userId)) throw new UserNotFoundException(); // 유저 확인
+
+        Page<Post> posts = postRepository.findFollwerPosts(userId, pageable); // 게시물 조회
 
         return posts.map(ReadPostResponse::from);
     }
