@@ -34,7 +34,7 @@ public class UserService {
             "^(?=\\S{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).*$"
     );
 
-
+    // 회원 가입
     public CreateUserResponse createUser(CreateUserRequest request) {
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -45,6 +45,11 @@ public class UserService {
                 request.getNickname(),
                 encodedPassword
         );
+
+        // 이메일 중복 여부 확인
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
 
         User savedUser = userRepository.save(user);
 
