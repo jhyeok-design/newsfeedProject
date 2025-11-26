@@ -17,11 +17,12 @@ import static com.example.project.security.util.SecurityUtil.getCurrentUserId;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/posts/{postId}")
 public class CommentController  {
 
     private final CommentService commentService;
 
-    @PostMapping("/posts/{postId}/comments")
+    @PostMapping("/comments")
     public ResponseEntity<CreateCommentResponse> createComment(
             @PathVariable Long postId,
             @RequestBody CreateCommentRequest request) {
@@ -30,7 +31,7 @@ public class CommentController  {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @GetMapping("/posts/{postId}/comments")
+    @GetMapping("/comments")
     public ResponseEntity<Page<GetCommentResponse>> getComments(
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
@@ -39,6 +40,8 @@ public class CommentController  {
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+//    @PutMapping("comments/{commentId}")
+//    public ResponseEntity<>
 
 
 
