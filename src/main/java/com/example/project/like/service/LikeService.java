@@ -1,11 +1,11 @@
 package com.example.project.like.service;
 
 import com.example.project.common.entity.Like;
+import com.example.project.common.entity.Post;
 import com.example.project.common.entity.User;
 import com.example.project.common.exception.CustomException;
 import com.example.project.common.exception.ErrorCode;
 import com.example.project.like.repository.LikeRepository;
-import com.example.project.post.entity.Post;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
