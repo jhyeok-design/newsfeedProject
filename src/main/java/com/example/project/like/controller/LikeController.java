@@ -1,5 +1,6 @@
 package com.example.project.like.controller;
 
+import com.example.project.like.model.response.LikeResponse;
 import com.example.project.like.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,19 +17,19 @@ public class LikeController {
 
     // 좋아요 생성
     @PostMapping("/posts/{postId}/likes")
-    public ResponseEntity<Void> createLike(
+    public ResponseEntity<LikeResponse> createLike(
             @PathVariable Long postId) {
         Long currentUserId = getCurrentUserId();
-        likeService.like(currentUserId, postId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        LikeResponse result = likeService.like(currentUserId, postId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     // 좋아요 취소
     @DeleteMapping("/posts/{postId}/likes")
-    public ResponseEntity<Void> deleteLike(
+    public ResponseEntity<LikeResponse> deleteLike(
             @PathVariable Long postId) {
         Long currentUserId = getCurrentUserId();
-        likeService.unlike(currentUserId, postId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        LikeResponse result = likeService.unlike(currentUserId, postId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
