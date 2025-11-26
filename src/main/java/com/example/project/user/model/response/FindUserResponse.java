@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class GetUserResponse {
+public class FindUserResponse {
 
     private final long id;
     private final String email;
@@ -17,21 +17,15 @@ public class GetUserResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    private final int followerCount;
-    private final int followingCount;
 
-
-    public static GetUserResponse from(User user, int followerCount, int followingCount) {
-        return new GetUserResponse(
+    public static FindUserResponse from(User user) {
+        return new FindUserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
                 user.getUserName(),
                 user.getCreatedAt(),
-                user.getModifiedAt(),
-
-                followerCount,
-                followingCount
+                user.getModifiedAt()
         );
     }
 

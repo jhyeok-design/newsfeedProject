@@ -4,6 +4,7 @@ import com.example.project.common.entity.User;
 import com.example.project.common.exception.CustomException;
 import com.example.project.common.exception.ErrorCode;
 import com.example.project.common.utils.PasswordEncoder;
+import com.example.project.follow.repository.FollowRepository;
 import com.example.project.security.jwt.JwtUtil;
 import com.example.project.user.model.request.CreateUserRequest;
 import com.example.project.user.model.request.DeleteUserRequest;
@@ -24,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final FollowRepository followRepository;
 
     public CreateUserResponse createUser(CreateUserRequest request) {
 
@@ -71,33 +73,46 @@ public class UserService {
     }
     
     @Transactional(readOnly = true)
-    public GetUserResponse findUser(Long userId) {
+    public FindUserResponse findUser(Long userId) {
         User user = findUserOrException(userId);
 
-        return GetUserResponse.from(user);
+        return FindUserResponse.from(user);
     }
     
     // 마이페이지 조회
     @Transactional(readOnly = true)
     public GetUserResponse getMe() {
         Long userId = getCurrentUserId();
+
+        // 논리삭제된 유저 제외
         User user = findUserOrException(userId);
-        return GetUserResponse.from(user);
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        // 팔로워/팔로잉 수 조회
+        int followerCount = followRepository.countByFollowingsId(userId);
+        int followingCount = followRepository.countByFollowersId(userId);
+
+        return GetUserResponse.from(user, followerCount, followingCount);
     }
 
     // 타 회원 마이페이지 조회
     @Transactional(readOnly = true)
     public GetOtherUserResponse getOtherUser(Long userId) {
 
-        // 논리삭제된 사용자 제외 기능 추가할것
         // 논리삭제된 유저 제외
         User user = findUserOrException(userId);
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
+
+        // 팔로워/팔로잉 수 조회
+        int followerCount = followRepository.countByFollowingsId(userId);
+        int followingCount = followRepository.countByFollowersId(userId);
         
         User otherUser = findUserOrException(userId);
-        return GetOtherUserResponse.from(otherUser);
+        return GetOtherUserResponse.from(otherUser, followerCount, followingCount);
     }
     
     // 내 정보 수정
