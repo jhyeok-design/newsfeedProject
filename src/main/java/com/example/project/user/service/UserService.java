@@ -121,20 +121,52 @@ public class UserService {
         Long userId = getCurrentUserId();
         User user = findUserOrException(userId);
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        // 요청 값 존재 여부 확인
+        boolean nicknameExists = request.getNickname() != null && !request.getNickname().isBlank();
+        boolean currentPwExists = request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank();
+        boolean newPwExists = request.getNewPassword() != null && !request.getNewPassword().isBlank();
+
+        // 아무런 값도 안 보냈을 때
+        if (!nicknameExists && !currentPwExists && !newPwExists) {
+            throw new CustomException(ErrorCode.NOTHING_TO_UPDATE);
         }
 
-        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
-            throw new CustomException(ErrorCode.SAME_PASSWORD);
+        // 닉네임 변경
+        if (nicknameExists) {
+            String newNickname = request.getNickname().trim();
+
+            // 기존 닉네임과 같은 닉네임인지 중복 확인
+            if (!newNickname.equals(user.getNickname())) {
+                if (userRepository.existsByNicknameAndIdNot(newNickname, user.getId())) {
+                    throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+                }
+                user.modifyNickname(newNickname);
+            }
         }
 
-        String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+        // 비밀번호 변경
+        // 현재 비밀번호와 새로운 비밀번호 둘 중 하나라도 있으면 변경 의사가 존재
+        if (currentPwExists || newPwExists) {
 
-        user.updateUser(
-                request.getNickname(),
-                encodedNewPassword
-        );
+            // 두 값이 다 있어야 정상 변경
+            if (!currentPwExists || !newPwExists) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD_INPUT); // 두 값 중 하나가 빠졌을 때
+            }
+
+            // 현재 비밀번호 검증
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            }
+
+            // 새 비밀번호가 현재 비밀번호와 같은지 확인
+            if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+                throw new CustomException(ErrorCode.SAME_PASSWORD);
+            }
+
+            // 비밀번호 수정, 인코딩
+            String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+            user.modifyPassword(encodedNewPassword);
+        }
 
         return UpdateUserResponse.from(user);
     }
