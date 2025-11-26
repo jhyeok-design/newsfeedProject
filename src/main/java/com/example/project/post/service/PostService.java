@@ -14,8 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -45,26 +43,23 @@ public class PostService {
     }
 
     /**
-     * 게시물 전체 조회
+     * 게시물 전체 조회 (페이징)
      * - 유저 ID가 없으면 모든 게시물 조회
      * - 유저 ID가 있으면 유저의 게시물 전체 조회
+     * - 페이징 없이도 조회 가능
      * @param userId 조회할 유저 ID (선택)
-     * @return 조회 응답 DTO 리스트
+     * @param pageable 페이징 정보를 담고 있는 객체
+     * @return 조회된 게시물 (페이징)
      */
-    public List<ReadPostResponse> getAllPost(Long userId) {
+    @Transactional(readOnly = true)
+    public Page<ReadPostResponse> getAllPost(Long userId, Pageable pageable) {
         // 유저 조회 (userId가 null이면, null)
         User user = userId == null ? null
                 : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        // 게시물 조회
-        List<Post> posts = postRepository.findPosts(user);
+        // 게시물 조회 (pageable이 Pageable.unpaged()이면 페이징 없이 조회)
+        Page<Post> posts = postRepository.findPosts(user, pageable);
 
-        return posts.stream().map(ReadPostResponse::from).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public Page<ReadPostResponse> getAllMePage(Pageable pageable) {
-        Page<Post> postpage = postRepository.findAll(pageable);
-        return postpage.map(ReadPostResponse::from);
+        return posts.map(ReadPostResponse::from);
     }
 
     /**

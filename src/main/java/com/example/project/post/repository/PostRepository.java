@@ -2,11 +2,11 @@ package com.example.project.post.repository;
 
 import com.example.project.common.entity.User;
 import com.example.project.common.entity.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -19,7 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
           AND (:user IS NULL OR p.user = :user)
         ORDER BY p.createdAt DESC
     """)
-    List<Post> findPosts(@Param("user") User user);
+    Page<Post> findPosts(@Param("user") User user, Pageable pageable);
 
     // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
     Optional<Post> findByIdAndIsDeletedFalse(Long postID);
