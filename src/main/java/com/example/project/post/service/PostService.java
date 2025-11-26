@@ -25,9 +25,10 @@ public class PostService {
     private final UserRepository userRepository;
 
     /**
-     * 게시물 생성
-     * @param request CreatePostRequest DTO(생성할 게시물의 제목과 내용)
-     * @return CreatePostResponse DTO
+     * 게시물 생성 - 로그인 필요
+     * @param userId 로그인한 유저 ID
+     * @param request 생성할 게시물의 제목과 내용
+     * @return 게시물 생성 요청 DTO
      */
     public CreatePostResponse createPost(Long userId, CreatePostRequest request) {
 
@@ -50,7 +51,7 @@ public class PostService {
      * - 페이징 없이도 조회 가능
      * @param userId 조회할 유저 ID (선택)
      * @param pageable 페이징 정보를 담고 있는 객체
-     * @return 조회된 게시물 (페이징)
+     * @return 조회한 게시물이 있는 페이지
      */
     @Transactional(readOnly = true)
     public Page<ReadPostResponse> getAllPost(Long userId, Pageable pageable,
@@ -69,6 +70,21 @@ public class PostService {
     }
 
     /**
+     * 내가 팔로우 한 유저들의 게시물 전체 조회 (페이징) - 로그인 필요
+     * @param userId 로그인한 유저 ID
+     * @param pageable 페이징 정보를 담고 있는 객체
+     * @return 조회한 게시물이 있는 페이지
+     */
+    public Page<ReadPostResponse> getFollowerPost(Long userId, Pageable pageable) {
+        // 유저 확인
+        if (userRepository.existsById(userId)) throw new UserNotFoundException();
+
+        Page<Post> posts = postRepository.findFollwerPosts(userId, pageable);
+
+        return posts.map(ReadPostResponse::from);
+    }
+
+    /**
      * 게시물 단건 조회
      * @param postID 조회할 게시물 ID
      * @return ReadPostResponse DTO
@@ -82,7 +98,8 @@ public class PostService {
     }
 
     /**
-     * 게시물 수정
+     * 게시물 수정 - 로그인 필요
+     * @param userId 로그인한 유저 ID
      * @param postId 수정할 게시물 ID
      * @param request 게시물
      * @return 게시물 수정 응답 DTO
@@ -103,7 +120,8 @@ public class PostService {
     }
 
     /**
-     * 게시물 삭제 (소프트 삭제)
+     * 게시물 삭제 (소프트 삭제) - 로그인 필요
+     * @param userID 로그인한 유저 ID
      * @param postID 삭제할 게시물 ID
      */
     public void deletePost(Long userID, Long postID) {
