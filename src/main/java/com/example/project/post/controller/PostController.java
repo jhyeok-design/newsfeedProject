@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,13 +31,25 @@ public class PostController {
     private final PostService postService;
 
     /**
+     * 현재 로그인된 User의 userId 반환
+     * @return userId
+     */
+    private Long getCurrentUserId() {
+        return (Long) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
+
+    /**
      * 게시물 생성
      * @param request CreatePostRequest DTO(생성할 게시물의 제목과 내용)
      * @return 생성된 게시물의 Response DTO
      */
     @PostMapping("/posts")
     public ResponseEntity<CreatePostResponse> createPost(@RequestBody CreatePostRequest request) {
-        CreatePostResponse result = postService.createPost(request);
+        Long userId = getCurrentUserId();
+        CreatePostResponse result = postService.createPost(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
@@ -63,9 +76,9 @@ public class PostController {
     public ResponseEntity<Page<ReadPostResponse>> getAllPostPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
+        Long userId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllPost(null, pageable);
+        Page<ReadPostResponse> result = postService.getAllPost(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -89,7 +102,8 @@ public class PostController {
     @PutMapping("/posts/{postId}")
     public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId,
                                                          @RequestBody UpdatePostRequest request) {
-        UpdatePostResponse result = postService.updatePost(postId, request);
+        Long userId = getCurrentUserId();
+        UpdatePostResponse result = postService.updatePost(userId, postId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -100,7 +114,8 @@ public class PostController {
      */
     @DeleteMapping("/posts/{postID}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postID) {
-        postService.deletePost(postID);
+        Long userID = getCurrentUserId();
+        postService.deletePost(userID, postID);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
