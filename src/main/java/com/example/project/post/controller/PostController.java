@@ -44,21 +44,12 @@ public class PostController {
     }
 
     /**
-     * 게시물 전체 조회
-     * - 쿼리 파라미터로 유저 ID를 받아, 특정 유저의 전체 게시물 조회 가능
-     * @return 조회된 게시물 DTO의 리스트
-     */
-    @GetMapping("/posts")
-    public ResponseEntity<List<ReadPostResponse>> getAllPost(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-        List<ReadPostResponse> result = postService.getAllPost(userId, Pageable.unpaged(), startDate, endDate).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-    /**
      * 게시물 전체 조회 (페이징)
+     * - 특정 유저의 전체 게시물 조회 가능
+     * - 기간 별 게시물 조회 가능
+     * @param userId 조회할 유저 ID (선택)
+     * @param startDate 시작일 (선택)
+     * @param endDate 종료일 (선택)
      * @param page 보려는 페이지
      * @param size 한번에 보려는 게시물 수
      * @return 조회한 게시물이 있는 페이지
@@ -66,10 +57,12 @@ public class PostController {
     @GetMapping("/posts/pages")
     public ResponseEntity<Page<ReadPostResponse>> getAllPostPage(
             @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllPost(userId, pageable, null, null);
+        Page<ReadPostResponse> result = postService.getAllPost(userId, startDate, endDate, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
