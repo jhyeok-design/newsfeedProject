@@ -47,14 +47,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 유저 조회
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<FindUserResponse> getUser(
-            @PathVariable Long userId) {
-        FindUserResponse result = userService.findUser(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
     // 마이 페이지 조회
     @GetMapping("/users/me")
     public ResponseEntity<GetUserResponse> getMe() {
@@ -64,7 +56,7 @@ public class UserController {
     }
 
     // 타 회원 마이페이지 조회 - 일반 정보만 노출하는 응답 객체
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<GetOtherUserResponse> getOtherUser(
             @PathVariable Long userId) {
         GetOtherUserResponse result = userService.getOtherUser(userId);
