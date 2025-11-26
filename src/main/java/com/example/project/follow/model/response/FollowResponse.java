@@ -14,13 +14,13 @@ public class FollowResponse {
 
     public static FollowResponse fromFollowers(Follow follow){
         return new FollowResponse(
-                follow.getId(),
+                follow.getFollowers().getId(),
                 follow.getFollowers().getNickname());
     }
 
     public static FollowResponse fromFollowings(Follow follow){
         return new FollowResponse(
-                follow.getId(),
+                follow.getFollowings().getId(),
                 follow.getFollowings().getNickname());
     }
 }
