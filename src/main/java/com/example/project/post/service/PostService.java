@@ -10,7 +10,6 @@ import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -30,9 +29,8 @@ public class PostService {
      * @param request CreatePostRequest DTO(생성할 게시물의 제목과 내용)
      * @return CreatePostResponse DTO
      */
-    public CreatePostResponse createPost(CreatePostRequest request) {
+    public CreatePostResponse createPost(Long userId, CreatePostRequest request) {
 
-        Long userId = getCurrentUserId();
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Post post = new Post(
                 request.getTitle(),
@@ -89,11 +87,10 @@ public class PostService {
      * @param request 게시물
      * @return 게시물 수정 응답 DTO
      */
-    public UpdatePostResponse updatePost(Long userID, Long postId, UpdatePostRequest request) {
+    public UpdatePostResponse updatePost(Long userId, Long postId, UpdatePostRequest request) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postId).orElseThrow(PostNotFoundException::new);
-
-        isOwner(userID, post);
+        isOwner(userId, post);
 
         // 아무 정보도 안 줬을 경우
         if ((request.getTitle() == null || request.getTitle().isEmpty())
@@ -107,13 +104,11 @@ public class PostService {
 
     /**
      * 게시물 삭제 (소프트 삭제)
-     * @param userID 로그인한 유저 ID
      * @param postID 삭제할 게시물 ID
      */
     public void deletePost(Long userID, Long postID) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
-
         isOwner(userID, post);
 
         post.delete(); // 조회한 게시물 삭제 처리
@@ -129,17 +124,6 @@ public class PostService {
         User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
         // 유저가 게시물의 작성자가 아니면 예외처리
         if (!post.getUser().equals(user)) throw new NotResourceOwnerException();
-    }
-
-    /**
-     * 현재 로그인된 User의 userId 반환
-     * @return userId
-     */
-    private Long getCurrentUserId() {
-        return (Long) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
     }
 
 }
