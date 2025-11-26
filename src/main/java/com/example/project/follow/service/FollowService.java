@@ -63,27 +63,27 @@ public class FollowService {
 
     }
 
-    // 나를 팔로우 한 팔로워들 조회
-    @Transactional(readOnly = true)
-    public Page<FollowResponse> findFollowers(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        User user = findUserOrException(userId);
-
-        Page<Follow> followers = followRepository.findByFollowers(user,pageable);
-
-        return followers.map(FollowResponse::fromFollowers);
-
-    }
-
     // 내가 팔로우 한 사람들 조회
     @Transactional(readOnly = true)
     public Page<FollowResponse> findFollowings(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
         User user = findUserOrException(userId);
 
-        Page<Follow> followings = followRepository.findByFollowings(user,pageable);
+        Page<Follow> followings = followRepository.findByFollowers(user,pageable);
 
         return followings.map(FollowResponse::fromFollowings);
+
+    }
+
+    // 나를 팔로우 한 팔로워들 조회
+    @Transactional(readOnly = true)
+    public Page<FollowResponse> findFollowers(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        User user = findUserOrException(userId);
+
+        Page<Follow> followers = followRepository.findByFollowings(user,pageable);
+
+        return followers.map(FollowResponse::fromFollowers);
 
     }
 
