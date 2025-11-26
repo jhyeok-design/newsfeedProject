@@ -93,8 +93,8 @@ public class PostService {
         isOwner(userId, post);
 
         // 아무 정보도 안 줬을 경우
-        if ((request.getTitle() == null || request.getTitle().isEmpty())
-                && (request.getContent() == null || request.getContent().isEmpty()))
+        if ((request.getTitle() == null || request.getTitle().isBlank())
+                && (request.getContent() == null || request.getContent().isBlank()))
             throw new EmptyPostUpdateException();
 
         post.update(request);

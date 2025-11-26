@@ -13,9 +13,10 @@ import com.example.project.user.model.request.UpdateUserRequest;
 import com.example.project.user.model.response.*;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final FollowRepository followRepository;
+    // 닉네임 조건: 영문 소문자 시작, 숫자와 '_'만 가능, 3~20자
+    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-z][a-z0-9_]{2,19}$");
+    // 비밀번호 조건: 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 이상 포함, 공백 불가
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
+            "^(?=\\S{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).*$"
+    );
+
 
     public CreateUserResponse createUser(CreateUserRequest request) {
 
@@ -65,8 +73,8 @@ public class UserService {
 
     // 로그아웃
     @Transactional
-    public void logout(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
+    public void logout(Long currentUserId) {
+        User user = userRepository.findById(currentUserId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         user.increaseTokenVersion();
@@ -81,18 +89,18 @@ public class UserService {
     
     // 마이페이지 조회
     @Transactional(readOnly = true)
-    public GetUserResponse getMe() {
-        Long userId = getCurrentUserId();
+    public GetUserResponse getMe(Long currentUserId) {
+        //Long userId = getCurrentUserId();
 
         // 논리삭제된 유저 제외
-        User user = findUserOrException(userId);
+        User user = findUserOrException(currentUserId);
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
 
         // 팔로워/팔로잉 수 조회
-        int followerCount = followRepository.countByFollowingsId(userId);
-        int followingCount = followRepository.countByFollowersId(userId);
+        int followerCount = followRepository.countByFollowingsId(currentUserId);
+        int followingCount = followRepository.countByFollowersId(currentUserId);
 
         return GetUserResponse.from(user, followerCount, followingCount);
     }
@@ -117,9 +125,8 @@ public class UserService {
     
     // 내 정보 수정
     @Transactional
-    public UpdateUserResponse updateMe(UpdateUserRequest request) {
-        Long userId = getCurrentUserId();
-        User user = findUserOrException(userId);
+    public UpdateUserResponse updateMe(Long currentUserId, UpdateUserRequest request) {
+        User user = findUserOrException(currentUserId);
 
         // 요청 값 존재 여부 확인
         boolean nicknameExists = request.getNickname() != null && !request.getNickname().isBlank();
@@ -134,6 +141,11 @@ public class UserService {
         // 닉네임 변경
         if (nicknameExists) {
             String newNickname = request.getNickname().trim();
+
+            // 닉네임 조건 검사 (DTO @Valid 대체)
+            if (!NICKNAME_PATTERN.matcher(newNickname).matches()) {
+                throw new CustomException(ErrorCode.INVALID_NICKNAME_FORMAT);
+            }
 
             // 기존 닉네임과 같은 닉네임인지 중복 확인
             if (!newNickname.equals(user.getNickname())) {
@@ -163,8 +175,20 @@ public class UserService {
                 throw new CustomException(ErrorCode.SAME_PASSWORD);
             }
 
+            // 비밀번호 조건 검사 (DTO @Valid 대체)
+            String newPw = request.getNewPassword();
+
+
+            if (newPw == null || newPw.length() < 8) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD_FORMAT);
+            }
+
+            if (!PASSWORD_PATTERN.matcher(newPw).matches()) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD_FORMAT);
+            }
+
             // 비밀번호 수정, 인코딩
-            String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+            String encodedNewPassword = passwordEncoder.encode(newPw);
             user.modifyPassword(encodedNewPassword);
         }
 
@@ -174,10 +198,9 @@ public class UserService {
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     // 기존 : @PathVariable로 userId를 받아서 findById후 encodedPassword로 해당 유저의 인코딩된 비밀번호를 특정해서 대조함
     // 변경 : @PathVariable대신 JwtAuthenticationFilter의 SecurityContext에서 UserId를 가져와서 대조 (서비스 하단 메서드)
-    public void deleteUser(DeleteUserRequest request) {
+    public void deleteUser(Long currentUserId, DeleteUserRequest request) {
 
-        Long userId = getCurrentUserId();
-        User user = findUserOrException(userId);
+        User user = findUserOrException(currentUserId);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
@@ -192,12 +215,5 @@ public class UserService {
         );
     }
 
-    // SecurityContextHolder - 현재 로그인한 userId 가져오기
-    private Long getCurrentUserId() {
-        return (Long) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-    }
 }
 
