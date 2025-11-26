@@ -61,10 +61,9 @@ public class PostController {
      */
     @GetMapping("/posts")
     public ResponseEntity<List<ReadPostResponse>> getAllPost(
-            @RequestParam(name = "userId", required = false) Long userId,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-
+        Long userId = getCurrentUserId();
         List<ReadPostResponse> result = postService.getAllPost(userId, Pageable.unpaged(), startDate, endDate).toList();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
