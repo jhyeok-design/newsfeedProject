@@ -12,6 +12,7 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "일치하지 않는 비밀번호"),
     SAME_PASSWORD(HttpStatus.CONFLICT, "CONFLICT", "새 비밀번호가 기존 비밀번호와 동일합니다."),
     EMPTY_POST_UPDATE(HttpStatus.BAD_REQUEST, "NO_ARGUMENT_INPUT", "입력된 값이 없습니다"),
+    NOT_RESOURCE_OWNER(HttpStatus.FORBIDDEN, "FORBIDDEN", "작성자만 가능한 작업입니다."),
     FOLLOW_ALREADY_EXISTS(HttpStatus.CONFLICT, "FOLLOW_ALREADY_EXISTS", "이미 팔로우한 사용자입니다."),
     SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "SELF_FOLLOW_NOT_ALLOWED", "본인을 팔로우할 수 없습니다."),
     FOLLOW_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLLOW_NOT_FOUND", "팔로우 관계가 존재하지 않습니다."),
@@ -20,8 +21,6 @@ public enum ErrorCode {
     INVALID_PASSWORD_INPUT(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_INPUT", "기존 비밀번호와 새 비밀번호 모두 입력해주세요."),
     LIKE_ALREADY_EXISTS(HttpStatus.CONFLICT, "LIKE_ALREADY_EXISTS", "이미 좋아요를 눌렀습니다."),
     LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIKE_NOT_FOUND", "좋아요 기록이 없습니다.");
-
-
 
 
     private final HttpStatus status;

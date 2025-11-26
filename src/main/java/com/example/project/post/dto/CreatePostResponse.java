@@ -1,6 +1,6 @@
 package com.example.project.post.dto;
 
-import com.example.project.post.entity.Post;
+import com.example.project.common.entity.Post;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
