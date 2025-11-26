@@ -55,7 +55,7 @@ public class PostService {
     public Page<ReadPostResponse> getAllPost(Long userId, Pageable pageable) {
         // 유저 조회 (userId가 null이면, null)
         User user = userId == null ? null
-                : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+                : userRepository.findById(getCurrentUserId()).orElseThrow(UserNotFoundException::new);
         // 게시물 조회 (pageable이 Pageable.unpaged()이면 페이징 없이 조회)
         Page<Post> posts = postRepository.findPosts(user, pageable);
 
@@ -81,10 +81,10 @@ public class PostService {
      * @param request 게시물
      * @return 게시물 수정 응답 DTO
      */
-    public UpdatePostResponse updatePost(Long userID, Long postId, UpdatePostRequest request) {
+    public UpdatePostResponse updatePost(Long postId, UpdatePostRequest request) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postId).orElseThrow(PostNotFoundException::new);
-
+        Long userID = getCurrentUserId();
         isOwner(userID, post);
 
         // 아무 정보도 안 줬을 경우
@@ -99,13 +99,12 @@ public class PostService {
 
     /**
      * 게시물 삭제 (소프트 삭제)
-     * @param userID 로그인한 유저 ID
      * @param postID 삭제할 게시물 ID
      */
-    public void deletePost(Long userID, Long postID) {
+    public void deletePost(Long postID) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
-
+        Long userID = getCurrentUserId();
         isOwner(userID, post);
 
         post.delete(); // 조회한 게시물 삭제 처리
