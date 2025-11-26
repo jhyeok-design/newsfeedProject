@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.regex.Pattern;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -26,6 +28,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final FollowRepository followRepository;
+    // 닉네임 조건: 영문 소문자 시작, 숫자와 '_'만 가능, 3~20자
+    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-z][a-z0-9_]{2,19}$");
+    // 비밀번호 조건: 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 이상 포함, 공백 불가
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
+            "^(?=\\S{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).*$"
+    );
+
 
     public CreateUserResponse createUser(CreateUserRequest request) {
 
@@ -135,6 +144,11 @@ public class UserService {
         if (nicknameExists) {
             String newNickname = request.getNickname().trim();
 
+            // 닉네임 조건 검사 (DTO @Valid 대체)
+            if (!NICKNAME_PATTERN.matcher(newNickname).matches()) {
+                throw new CustomException(ErrorCode.INVALID_NICKNAME_FORMAT);
+            }
+
             // 기존 닉네임과 같은 닉네임인지 중복 확인
             if (!newNickname.equals(user.getNickname())) {
                 if (userRepository.existsByNicknameAndIdNot(newNickname, user.getId())) {
@@ -163,8 +177,20 @@ public class UserService {
                 throw new CustomException(ErrorCode.SAME_PASSWORD);
             }
 
+            // 비밀번호 조건 검사 (DTO @Valid 대체)
+            String newPw = request.getNewPassword();
+
+
+            if (newPw == null || newPw.length() < 8) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD_FORMAT);
+            }
+
+            if (!PASSWORD_PATTERN.matcher(newPw).matches()) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD_FORMAT);
+            }
+
             // 비밀번호 수정, 인코딩
-            String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+            String encodedNewPassword = passwordEncoder.encode(newPw);
             user.modifyPassword(encodedNewPassword);
         }
 

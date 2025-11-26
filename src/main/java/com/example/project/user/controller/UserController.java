@@ -71,7 +71,7 @@ public class UserController {
     // 내 정보 수정
     @PatchMapping("/users/me")
     public ResponseEntity<UpdateUserResponse> updateMe(
-            @Valid @RequestBody UpdateUserRequest request) {
+            @RequestBody UpdateUserRequest request) {
         UpdateUserResponse result = userService.updateMe(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -79,7 +79,7 @@ public class UserController {
     // 회원정보 논리적 삭제
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
-            @Valid @RequestBody DeleteUserRequest request) {
+            @RequestBody DeleteUserRequest request) {
         userService.deleteUser(request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
