@@ -4,6 +4,7 @@ import com.example.project.common.entity.Follow;
 import com.example.project.common.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -17,9 +18,11 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
     Optional<Follow> findByFollowersIdAndFollowingsId(Long followerId, Long followingId);
 
     // 팔로잉 목록
+    @EntityGraph(attributePaths = {"followers", "followings"})
     Page<Follow> findByFollowings(User followings, Pageable pageable);
 
     // 팔로워 목록
+    @EntityGraph(attributePaths = {"followers", "followings"})
     Page<Follow> findByFollowers(User followers,Pageable pageable);
 
 }
