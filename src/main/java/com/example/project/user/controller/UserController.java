@@ -83,7 +83,7 @@ public class UserController {
     // 회원정보 논리적 삭제
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
-            @RequestBody DeleteUserRequest request) {
+            @Valid @RequestBody DeleteUserRequest request) {
         Long currentUserId = getCurrentUserId();
         userService.deleteUser(currentUserId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
