@@ -30,12 +30,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                          @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("""
-        SELECT p, f
+        SELECT p
         FROM Post p JOIN Follow f ON p.user.id = f.followings.id
-        WHERE p.isDeleted = false AND f.followers = :userId
+        WHERE p.isDeleted = false AND f.followers.id = :userId
         ORDER BY p.modifiedAt DESC
     """)
-    Page<Post> findFollwerPosts(Long userId, Pageable pageable);
+    Page<Post> findFollowerPosts(Long userId, Pageable pageable);
 
     // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
     Optional<Post> findByIdAndIsDeletedFalse(Long postID);
