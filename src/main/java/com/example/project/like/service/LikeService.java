@@ -44,6 +44,7 @@ public class LikeService {
         likeRepository.save(like);
 
         long likeCount = likeRepository.countByPost_Id(postId);
+        post.updateLikeCount(likeCount);
         return new LikeResponse(postId, likeCount, true);
     }
 
@@ -57,6 +58,9 @@ public class LikeService {
         likeRepository.delete(like);
 
         long likeCount = likeRepository.countByPost_Id(postId);
+
+        Post post = like.getPost();
+        post.updateLikeCount(likeCount);
         return new LikeResponse(postId, likeCount, false);
     }
 }
