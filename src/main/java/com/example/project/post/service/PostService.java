@@ -76,7 +76,7 @@ public class PostService {
      */
     public Page<ReadPostResponse> getFollowerPost(Long userId, Pageable pageable) {
 
-        if (userRepository.existsById(userId)) throw new UserNotFoundException(); // 유저 확인
+        if (!userRepository.existsById(userId)) throw new UserNotFoundException(); // 유저 확인
 
         Page<Post> posts = postRepository.findFollwerPosts(userId, pageable); // 게시물 조회
 

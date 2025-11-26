@@ -79,14 +79,7 @@ public class UserService {
         );
         user.increaseTokenVersion();
     }
-    
-    @Transactional(readOnly = true)
-    public FindUserResponse findUser(Long userId) {
-        User user = findUserOrException(userId);
 
-        return FindUserResponse.from(user);
-    }
-    
     // 마이페이지 조회
     @Transactional(readOnly = true)
     public GetUserResponse getMe(Long currentUserId) {
@@ -111,6 +104,7 @@ public class UserService {
 
         // 논리삭제된 유저 제외
         User user = findUserOrException(userId);
+
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
@@ -119,8 +113,8 @@ public class UserService {
         int followerCount = followRepository.countByFollowingsId(userId);
         int followingCount = followRepository.countByFollowersId(userId);
         
-        User otherUser = findUserOrException(userId);
-        return GetOtherUserResponse.from(otherUser, followerCount, followingCount);
+//        User otherUser = findUserOrException(userId);
+        return GetOtherUserResponse.from(user, followerCount, followingCount);
     }
     
     // 내 정보 수정
