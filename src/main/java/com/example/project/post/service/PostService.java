@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
@@ -52,12 +55,17 @@ public class PostService {
      * @return 조회된 게시물 (페이징)
      */
     @Transactional(readOnly = true)
-    public Page<ReadPostResponse> getAllPost(Long userId, Pageable pageable) {
+    public Page<ReadPostResponse> getAllPost(Long userId, Pageable pageable,
+                                             LocalDate startDate, LocalDate endDate) {
         // 유저 조회 (userId가 null이면, null)
         User user = userId == null ? null
                 : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        LocalDateTime start = startDate == null ? null : startDate.atStartOfDay(); // 시간을 00:00:00으로 설정
+        LocalDateTime end = endDate == null ? null : endDate.atTime(LocalTime.MAX); // 시간을 23:59:59로 설정
+
         // 게시물 조회 (pageable이 Pageable.unpaged()이면 페이징 없이 조회)
-        Page<Post> posts = postRepository.findPosts(user, pageable);
+        Page<Post> posts = postRepository.findPosts(user, pageable, start, end);
 
         return posts.map(ReadPostResponse::from);
     }

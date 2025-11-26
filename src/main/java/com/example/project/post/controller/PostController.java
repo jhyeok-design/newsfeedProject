@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -47,9 +48,11 @@ public class PostController {
      */
     @GetMapping("/posts")
     public ResponseEntity<List<ReadPostResponse>> getAllPost(
-            @RequestParam(name = "userId", required = false) Long userId) {
+            @RequestParam(name = "userId", required = false) Long userId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
 
-        List<ReadPostResponse> result = postService.getAllPost(userId, Pageable.unpaged()).toList();
+        List<ReadPostResponse> result = postService.getAllPost(userId, Pageable.unpaged(), startDate, endDate).toList();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -66,7 +69,7 @@ public class PostController {
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllPost(userId, pageable);
+        Page<ReadPostResponse> result = postService.getAllPost(userId, pageable, null, null);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
