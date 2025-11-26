@@ -61,7 +61,6 @@ public class User extends BaseEntity {
     // 유저의 비밀번호 수정
     public void modifyPassword(String encodedPassword) {
         this.password = encodedPassword;
-        this.increaseTokenVersion();
     }
 
     // 회원정보 논리적 삭제 + 시간 기록
