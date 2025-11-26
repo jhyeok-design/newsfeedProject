@@ -36,8 +36,8 @@ public class PostController {
      */
     @PostMapping("/posts")
     public ResponseEntity<CreatePostResponse> createPost(@RequestBody CreatePostRequest request) {
-        CreatePostResponse response = postService.createPost(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        CreatePostResponse result = postService.createPost(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     /**
@@ -49,17 +49,24 @@ public class PostController {
     public ResponseEntity<List<ReadPostResponse>> getAllPost(
             @RequestParam(name = "userId", required = false) Long userId) {
 
-        List<ReadPostResponse> resultList = postService.getAllPost(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(resultList);
+        List<ReadPostResponse> result = postService.getAllPost(userId, Pageable.unpaged()).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    @GetMapping("page")
-    public ResponseEntity<Page<ReadPostResponse>> getAllPostMePage(
+    /**
+     * 게시물 전체 조회 페이징
+     * @param page 보려는 페이지
+     * @param size 한번에 보려는 게시물 수
+     * @return 조회된 게시물 DTO가 모여있는 페이지
+     */
+    @GetMapping("/posts/pages")
+    public ResponseEntity<Page<ReadPostResponse>> getAllPostPage(
+            @RequestParam(name = "userId", required = false) Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllMePage(pageable);
+        Page<ReadPostResponse> result = postService.getAllPost(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
