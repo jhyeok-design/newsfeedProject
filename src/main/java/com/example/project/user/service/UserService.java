@@ -13,7 +13,6 @@ import com.example.project.user.model.request.UpdateUserRequest;
 import com.example.project.user.model.response.*;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,8 +64,8 @@ public class UserService {
 
     // 로그아웃
     @Transactional
-    public void logout(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
+    public void logout(Long currentUserId) {
+        User user = userRepository.findById(currentUserId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
         user.increaseTokenVersion();
@@ -81,18 +80,18 @@ public class UserService {
     
     // 마이페이지 조회
     @Transactional(readOnly = true)
-    public GetUserResponse getMe() {
-        Long userId = getCurrentUserId();
+    public GetUserResponse getMe(Long currentUserId) {
+        //Long userId = getCurrentUserId();
 
         // 논리삭제된 유저 제외
-        User user = findUserOrException(userId);
+        User user = findUserOrException(currentUserId);
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
 
         // 팔로워/팔로잉 수 조회
-        int followerCount = followRepository.countByFollowingsId(userId);
-        int followingCount = followRepository.countByFollowersId(userId);
+        int followerCount = followRepository.countByFollowingsId(currentUserId);
+        int followingCount = followRepository.countByFollowersId(currentUserId);
 
         return GetUserResponse.from(user, followerCount, followingCount);
     }
@@ -117,9 +116,8 @@ public class UserService {
     
     // 내 정보 수정
     @Transactional
-    public UpdateUserResponse updateMe(UpdateUserRequest request) {
-        Long userId = getCurrentUserId();
-        User user = findUserOrException(userId);
+    public UpdateUserResponse updateMe(Long currentUserId, UpdateUserRequest request) {
+        User user = findUserOrException(currentUserId);
 
         // 요청 값 존재 여부 확인
         boolean nicknameExists = request.getNickname() != null && !request.getNickname().isBlank();
@@ -174,10 +172,9 @@ public class UserService {
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
     // 기존 : @PathVariable로 userId를 받아서 findById후 encodedPassword로 해당 유저의 인코딩된 비밀번호를 특정해서 대조함
     // 변경 : @PathVariable대신 JwtAuthenticationFilter의 SecurityContext에서 UserId를 가져와서 대조 (서비스 하단 메서드)
-    public void deleteUser(DeleteUserRequest request) {
+    public void deleteUser(Long currentUserId, DeleteUserRequest request) {
 
-        Long userId = getCurrentUserId();
-        User user = findUserOrException(userId);
+        User user = findUserOrException(currentUserId);
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
@@ -192,12 +189,5 @@ public class UserService {
         );
     }
 
-    // SecurityContextHolder - 현재 로그인한 userId 가져오기
-    private Long getCurrentUserId() {
-        return (Long) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-    }
 }
 

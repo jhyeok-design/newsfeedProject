@@ -14,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.project.security.util.SecurityUtil.getCurrentUserId;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -38,9 +40,10 @@ public class UserController {
 
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
-        userService.logout(userId);
+    public ResponseEntity<Void> logout() {
+        //Long userId = (Long) authentication.getPrincipal();
+        Long currentUserId = getCurrentUserId();
+        userService.logout(currentUserId);
         SecurityContextHolder.clearContext();
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -56,7 +59,8 @@ public class UserController {
     // 마이 페이지 조회
     @GetMapping("/users/me")
     public ResponseEntity<GetUserResponse> getMe() {
-        GetUserResponse result = userService.getMe();
+        Long currentUserId = getCurrentUserId();
+        GetUserResponse result = userService.getMe(currentUserId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -72,7 +76,8 @@ public class UserController {
     @PatchMapping("/users/me")
     public ResponseEntity<UpdateUserResponse> updateMe(
             @Valid @RequestBody UpdateUserRequest request) {
-        UpdateUserResponse result = userService.updateMe(request);
+        Long currentUserId = getCurrentUserId();
+        UpdateUserResponse result = userService.updateMe(currentUserId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -80,7 +85,8 @@ public class UserController {
     @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
             @Valid @RequestBody DeleteUserRequest request) {
-        userService.deleteUser(request);
+        Long currentUserId = getCurrentUserId();
+        userService.deleteUser(currentUserId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
