@@ -20,8 +20,6 @@ public enum ErrorCode {
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "DUPLICATE_NICKNAME", "이미 존재하는 닉네임입니다."),
     INVALID_PASSWORD_INPUT(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_INPUT", "기존 비밀번호와 새 비밀번호 모두 입력해주세요.");
 
-
-
     private final HttpStatus status;
     private final String code;
     private final String message;

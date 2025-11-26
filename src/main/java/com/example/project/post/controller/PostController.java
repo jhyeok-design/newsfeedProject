@@ -61,23 +61,21 @@ public class PostController {
      */
     @GetMapping("/posts/pages")
     public ResponseEntity<Page<ReadPostResponse>> getAllPostPage(
-            @RequestParam(name = "userId", required = false) Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllPost(userId, pageable);
+        Page<ReadPostResponse> result = postService.getAllPost(null, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
      * 게시물 단건 조회
-     * @param userID 로그인한 유저 ID
      * @param postID 조회할 게시물 ID
      * @return 조회된 게시물의 Response DTO, 200(OK) 상태 코드
      */
-    @GetMapping("users/{userID}/posts/{postID}")
-    public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long userID, @PathVariable Long postID) {
+    @GetMapping("/posts/{postID}")
+    public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long postID) {
         ReadPostResponse result = postService.getOnePost(postID);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -88,22 +86,21 @@ public class PostController {
      * @param request 수정할 게시물 정보 ReadResponse DTO
      * @return 수정된 게시물의 Response DTO
      */
-    @PutMapping("users/{userID}/posts/{postId}")
-    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long userID, @PathVariable Long postId,
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId,
                                                          @RequestBody UpdatePostRequest request) {
-        UpdatePostResponse result = postService.updatePost(userID, postId, request);
+        UpdatePostResponse result = postService.updatePost(postId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
      * 게시물 삭제
-     * @param userID 로그인한 유저 ID
      * @param postID 조회한 게시물 ID
      * @return 204(NO_CONTENT) 상태 코드
      */
-    @DeleteMapping("users/{userID}/posts/{postID}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long userID, @PathVariable Long postID) {
-        postService.deletePost(userID, postID);
+    @DeleteMapping("/posts/{postID}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postID) {
+        postService.deletePost(postID);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
