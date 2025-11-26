@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Entity
@@ -18,10 +20,12 @@ public class Follow extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "followers_id",nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User followers;
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "followings_id",nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User followings  ;
 
 
