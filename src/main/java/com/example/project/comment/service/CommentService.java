@@ -39,7 +39,8 @@ public class CommentService {
 
         Comment comments = new Comment(comment, user, post);
         Comment savedComments = commentRepository.save(comments);
-
+        Long commentCount = commentRepository.countByPostId(postId);
+        post.updateCommentCount(commentCount);
         return CreateCommentResponse.from(savedComments);
     }
 

@@ -46,4 +46,14 @@ public class Post extends BaseEntity {
     public void delete() {
         this.isDeleted = true;
     }
+
+    // 좋아요 수 최신값으로 반영
+    public void updateLikeCount(long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    // 댓글 수 최신값으로 반영
+    public void updateCommentCount(Long commentCount) {
+        this.commentCount = commentCount;
+    }
 }
