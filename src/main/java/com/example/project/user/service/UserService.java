@@ -93,7 +93,6 @@ public class UserService {
     // 마이페이지 조회
     @Transactional(readOnly = true)
     public GetUserResponse getMe(Long currentUserId) {
-        //Long userId = getCurrentUserId();
 
         // 논리삭제된 유저 제외
         User user = findUserOrException(currentUserId);
@@ -114,7 +113,6 @@ public class UserService {
 
         // 논리삭제된 유저 제외
         User user = findUserOrException(userId);
-
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
@@ -122,8 +120,7 @@ public class UserService {
         // 팔로워/팔로잉 수 조회
         int followerCount = followRepository.countByFollowingsId(userId);
         int followingCount = followRepository.countByFollowersId(userId);
-        
-//        User otherUser = findUserOrException(userId);
+
         return GetOtherUserResponse.from(user, followerCount, followingCount);
     }
     
@@ -188,8 +185,6 @@ public class UserService {
     }
 
     // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
-    // 기존 : @PathVariable로 userId를 받아서 findById후 encodedPassword로 해당 유저의 인코딩된 비밀번호를 특정해서 대조함
-    // 변경 : @PathVariable대신 JwtAuthenticationFilter의 SecurityContext에서 UserId를 가져와서 대조 (서비스 하단 메서드)
     public void deleteUser(Long currentUserId, DeleteUserRequest request) {
 
         User user = findUserOrException(currentUserId);
