@@ -78,7 +78,7 @@ public class PostService {
 
         if (!userRepository.existsById(userId)) throw new UserNotFoundException(); // 유저 확인
 
-        Page<Post> posts = postRepository.findFollwerPosts(userId, pageable); // 게시물 조회
+        Page<Post> posts = postRepository.findFollowerPosts(userId, pageable); // 게시물 조회
 
         return posts.map(ReadPostResponse::from);
     }
@@ -111,9 +111,10 @@ public class PostService {
         // 아무 정보도 안 줬을 경우
         if ((request.getTitle() == null || request.getTitle().isBlank())
                 && (request.getContent() == null || request.getContent().isBlank()))
-            throw new EmptyPostUpdateException();
+            throw new NothingToUpdateException();
 
         post.update(request);
+        postRepository.flush();
 
         return UpdatePostResponse.from(post);
     }

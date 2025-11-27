@@ -59,6 +59,7 @@ public class CommentService {
         commentByUserOrException(comments,currentUserId);
 
         comments.update(comment);
+        commentRepository.flush();
 
         return UpdateCommentResponse.from(comments);
     }

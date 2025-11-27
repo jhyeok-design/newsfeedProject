@@ -34,7 +34,7 @@ public class UserService {
             "^(?=\\S{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).*$"
     );
 
-
+    // 회원 가입
     public CreateUserResponse createUser(CreateUserRequest request) {
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -45,6 +45,11 @@ public class UserService {
                 request.getNickname(),
                 encodedPassword
         );
+
+        // 이메일 중복 여부 확인
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
 
         User savedUser = userRepository.save(user);
 
@@ -68,7 +73,7 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         String token = jwtUtil.generateToken(user);
-        return new LoginResponse(token);
+        return LoginResponse.from(token);
     }
 
     // 로그아웃
@@ -147,6 +152,7 @@ public class UserService {
                     throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
                 }
                 user.modifyNickname(newNickname);
+
             }
         }
 
@@ -184,7 +190,9 @@ public class UserService {
             // 비밀번호 수정, 인코딩
             String encodedNewPassword = passwordEncoder.encode(newPw);
             user.modifyPassword(encodedNewPassword);
+
         }
+        userRepository.flush();
 
         return UpdateUserResponse.from(user);
     }
