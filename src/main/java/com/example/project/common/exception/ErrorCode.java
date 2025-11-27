@@ -11,6 +11,7 @@ public enum ErrorCode {
     FOLLOWING_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLLOWING_USER_NOT_FOUND", "팔로우할 대상이 존재하지 않습니다."),
     FOLLOW_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLLOW_NOT_FOUND", "팔로우 관계가 존재하지 않습니다."),
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"COMMENT_NOT_FOUND","변경할 댓글이 없습니다."),
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "LIKE_NOT_FOUND", "좋아요 기록이 없습니다."),
 
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "DUPLICATE_EMAIL", "이미 사용 중인 이메일입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "DUPLICATE_NICKNAME", "이미 존재하는 닉네임입니다."),
@@ -22,7 +23,6 @@ public enum ErrorCode {
     INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST, "INVALID_NICKNAME_FORMAT", "닉네임은 영문 소문자 시작, 숫자와 '_'만 가능하며 3~20자여야 합니다."),
     INVALID_PASSWORD_INPUT(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_INPUT", "기존 비밀번호와 새 비밀번호 모두 입력해주세요."),
     INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_FORMAT", "비밀번호는 공백 없이 8자 이상이며 대문자, 소문자, 숫자, 특수문자를 최소 1개씩 포함해야 합니다."),
-    LIKE_NOT_FOUND(HttpStatus.BAD_REQUEST, "LIKE_NOT_FOUND", "좋아요 기록이 없습니다."),
     SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "SELF_FOLLOW_NOT_ALLOWED", "본인을 팔로우할 수 없습니다."),
 
     NOT_RESOURCE_OWNER(HttpStatus.FORBIDDEN, "NOT_RESOURCE_OWNER", "작성자만 가능한 작업입니다."),

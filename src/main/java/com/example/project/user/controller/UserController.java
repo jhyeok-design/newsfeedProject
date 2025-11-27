@@ -66,7 +66,7 @@ public class UserController {
     // 내 정보 수정
     @PatchMapping("/users/me")
     public ResponseEntity<UpdateUserResponse> updateMe(
-            @RequestBody UpdateUserRequest request) {
+           @Valid @RequestBody UpdateUserRequest request) {
         Long currentUserId = getCurrentUserId();
         UpdateUserResponse result = userService.updateMe(currentUserId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
