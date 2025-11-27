@@ -11,5 +11,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @EntityGraph(attributePaths = {"user", "post"})
     Page<Comment> findByPost(Post post, Pageable pageable);
+
     Long countByPostId(Long postID);
 }

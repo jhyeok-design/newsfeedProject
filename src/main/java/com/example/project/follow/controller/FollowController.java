@@ -6,6 +6,9 @@ import com.example.project.follow.service.FollowService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +47,8 @@ public class FollowController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Long currentUserId = getCurrentUserId();
-        Page<FollowResponse> result = followService.findFollowings(currentUserId, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<FollowResponse> result = followService.findFollowings(currentUserId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -54,7 +58,8 @@ public class FollowController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Long currentUserId = getCurrentUserId();
-        Page<FollowResponse> result = followService.findFollowers(currentUserId, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<FollowResponse> result = followService.findFollowers(currentUserId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
