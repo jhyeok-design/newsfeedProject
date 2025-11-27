@@ -75,19 +75,19 @@ public class CommentService {
         post.updateCommentCount(commentCount);
     }
 
-    public User findUserOrException(Long userId) {
+    private User findUserOrException(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
     }
 
-    public Post findPostOrException(Long postId) {
+    private Post findPostOrException(Long postId) {
         return postRepository.findById(postId).orElseThrow(
                 () -> new CustomException(ErrorCode.POST_NOT_FOUND)
         );
     }
 
-    public Comment findCommentOrException(Long commentId) {
+    private Comment findCommentOrException(Long commentId) {
         return commentRepository.findById(commentId).orElseThrow(
                 () -> new CustomException(ErrorCode.COMMENT_NOT_FOUND)
         );
