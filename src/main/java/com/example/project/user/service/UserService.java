@@ -73,7 +73,7 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         String token = jwtUtil.generateToken(user);
-        return new LoginResponse(token);
+        return LoginResponse.from(token);
     }
 
     // 로그아웃
