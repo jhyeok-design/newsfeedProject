@@ -86,7 +86,7 @@ public class FollowService {
     }
 
 
-    public User findUserOrException(Long userId) {
+    private User findUserOrException(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
