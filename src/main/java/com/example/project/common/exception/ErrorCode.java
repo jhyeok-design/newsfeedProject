@@ -12,7 +12,6 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"COMMENT_NOT_FOUND","변경할 댓글이 없습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "INVALID_PASSWORD", "비밀번호가 일치하지 않습니다."),
     SAME_PASSWORD(HttpStatus.CONFLICT, "SAME_PASSWORD", "새 비밀번호가 기존 비밀번호와 동일합니다."),
-    EMPTY_POST_UPDATE(HttpStatus.BAD_REQUEST, "NO_ARGUMENT_INPUT", "입력된 값이 없습니다"),
     NOT_RESOURCE_OWNER(HttpStatus.FORBIDDEN, "NOT_RESOURCE_OWNER", "작성자만 가능한 작업입니다."),
     FOLLOW_ALREADY_EXISTS(HttpStatus.CONFLICT, "FOLLOW_ALREADY_EXISTS", "이미 팔로우한 사용자입니다."),
     SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "SELF_FOLLOW_NOT_ALLOWED", "본인을 팔로우할 수 없습니다."),
