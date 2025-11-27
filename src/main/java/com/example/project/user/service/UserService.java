@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.regex.Pattern;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,29 +25,36 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final FollowRepository followRepository;
-    // 닉네임 조건: 영문 소문자 시작, 숫자와 '_'만 가능, 3~20자
-    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[a-z][a-z0-9_]{2,19}$");
-    // 비밀번호 조건: 대문자, 소문자, 숫자, 특수문자를 각각 최소 1개 이상 포함, 공백 불가
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-            "^(?=\\S{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).*$"
-    );
 
     // 회원 가입
     public CreateUserResponse createUser(CreateUserRequest request) {
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-        User user = new User(
-                request.getUserName(),
-                request.getEmail(),
-                request.getNickname(),
-                encodedPassword
-        );
+        // 입력값 정리
+        String userName = request.getUserName().trim();
+        String email = normalizeEmail(request.getEmail());
+        String nickname = request.getNickname().trim();
+        String rawPassword = request.getPassword();
 
         // 이메일 중복 여부 확인
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(email)) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
+
+        // 닉네임 중복 여부 확인
+        if (userRepository.existsByNickname(nickname)) {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+
+        // 암호화
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+
+        // 유저 객체 생성
+        User user = new User(
+                userName,
+                email,
+                nickname,
+                encodedPassword
+        );
 
         User savedUser = userRepository.save(user);
 
@@ -60,7 +65,8 @@ public class UserService {
     // 로그인
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
+        String email = normalizeEmail(request.getEmail());
+        User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
@@ -77,7 +83,6 @@ public class UserService {
     }
 
     // 로그아웃
-    @Transactional
     public void logout(Long currentUserId) {
         User user = userRepository.findById(currentUserId).orElseThrow(
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
@@ -123,7 +128,6 @@ public class UserService {
     }
     
     // 내 정보 수정
-    @Transactional
     public UpdateUserResponse updateMe(Long currentUserId, UpdateUserRequest request) {
         User user = findUserOrException(currentUserId);
 
@@ -131,6 +135,7 @@ public class UserService {
         boolean nicknameExists = request.getNickname() != null && !request.getNickname().isBlank();
         boolean currentPwExists = request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank();
         boolean newPwExists = request.getNewPassword() != null && !request.getNewPassword().isBlank();
+
 
         // 아무런 값도 안 보냈을 때
         if (!nicknameExists && !currentPwExists && !newPwExists) {
@@ -140,11 +145,6 @@ public class UserService {
         // 닉네임 변경
         if (nicknameExists) {
             String newNickname = request.getNickname().trim();
-
-            // 닉네임 조건 검사 (DTO @Valid 대체)
-            if (!NICKNAME_PATTERN.matcher(newNickname).matches()) {
-                throw new CustomException(ErrorCode.INVALID_NICKNAME_FORMAT);
-            }
 
             // 기존 닉네임과 같은 닉네임인지 중복 확인
             if (!newNickname.equals(user.getNickname())) {
@@ -175,17 +175,7 @@ public class UserService {
                 throw new CustomException(ErrorCode.SAME_PASSWORD);
             }
 
-            // 비밀번호 조건 검사 (DTO @Valid 대체)
             String newPw = request.getNewPassword();
-
-
-            if (newPw == null || newPw.length() < 8) {
-                throw new CustomException(ErrorCode.INVALID_PASSWORD_FORMAT);
-            }
-
-            if (!PASSWORD_PATTERN.matcher(newPw).matches()) {
-                throw new CustomException(ErrorCode.INVALID_PASSWORD_FORMAT);
-            }
 
             // 비밀번호 수정, 인코딩
             String encodedNewPassword = passwordEncoder.encode(newPw);
@@ -217,5 +207,8 @@ public class UserService {
         );
     }
 
+    private String normalizeEmail(String email) {
+        return (email == null) ? null : email.trim().toLowerCase();
+    }
 }
 
