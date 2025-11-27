@@ -99,7 +99,7 @@ public class PostController {
      * @param request 수정할 게시물 정보 ReadResponse DTO
      * @return 수정된 게시물의 Response DTO
      */
-    @PutMapping("/posts/{postId}")
+    @PatchMapping("/posts/{postId}")
     public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId,
                                                          @RequestBody UpdatePostRequest request) {
         Long userId = getCurrentUserId();
