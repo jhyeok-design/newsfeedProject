@@ -46,7 +46,7 @@ public class PostController {
      * 게시물 전체 조회 (페이징)
      * - 특정 유저의 전체 게시물 조회 가능
      * - 기간 별 게시물 조회 가능
-     * @param userID 조회할 유저 ID (선택)
+     * @param userId 조회할 유저 Id (선택)
      * @param startDate 시작일 (선택)
      * @param endDate 종료일 (선택)
      * @param page 보려는 페이지
@@ -55,13 +55,13 @@ public class PostController {
      */
     @GetMapping("/posts/pages")
     public ResponseEntity<Page<ReadPostResponse>> getAllPostPage(
-            @RequestParam(required = false) Long userID,
+            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllPost(userID, startDate, endDate, pageable);
+        Page<ReadPostResponse> result = postService.getAllPost(userId, startDate, endDate, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -75,46 +75,46 @@ public class PostController {
     public ResponseEntity<Page<ReadPostResponse>> getFollowerPost(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Long userID = getCurrentUserId();
+        Long userId = getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        Page<ReadPostResponse> result = postService.getFollowerPost(userID, pageable);
+        Page<ReadPostResponse> result = postService.getFollowerPost(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
      * 게시물 단건 조회
-     * @param postID 조회할 게시물 ID
+     * @param postId 조회할 게시물 Id
      * @return 조회된 게시물의 Response DTO, 200(OK) 상태 코드
      */
-    @GetMapping("/posts/{postID}")
-    public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long postID) {
-        ReadPostResponse result = postService.getOnePost(postID);
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ReadPostResponse> getOnePost(@PathVariable Long postId) {
+        ReadPostResponse result = postService.getOnePost(postId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
      * 게시물 수정
-     * @param postID 게시물 ID
+     * @param postId 게시물 Id
      * @param request 수정할 게시물 정보 ReadResponse DTO
      * @return 수정된 게시물의 Response DTO
      */
     @PatchMapping("/posts/{postId}")
-    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postID,
+    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId,
                                                          @RequestBody UpdatePostRequest request) {
-        Long userID = getCurrentUserId();
-        UpdatePostResponse result = postService.updatePost(userID, postID, request);
+        Long userId = getCurrentUserId();
+        UpdatePostResponse result = postService.updatePost(userId, postId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
      * 게시물 삭제
-     * @param postID 조회한 게시물 ID
+     * @param postId 조회한 게시물 ID
      * @return 204(NO_CONTENT) 상태 코드
      */
-    @DeleteMapping("/posts/{postID}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postID) {
-        Long userID = getCurrentUserId();
-        postService.deletePost(userID, postID);
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        Long userId = getCurrentUserId();
+        postService.deletePost(userId, postId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
