@@ -6,6 +6,7 @@ import com.example.project.comment.model.response.CreateCommentResponse;
 import com.example.project.comment.model.response.GetCommentResponse;
 import com.example.project.comment.model.response.UpdateCommentResponse;
 import com.example.project.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,7 @@ public class CommentController {
     @PostMapping("/comments")
     public ResponseEntity<CreateCommentResponse> createComment(
             @PathVariable Long postId,
-            @RequestBody CreateCommentRequest request) {
+            @Valid @RequestBody CreateCommentRequest request) {
         Long currentUserId = getCurrentUserId();
         CreateCommentResponse result = commentService.comment(currentUserId, postId, request.getComment());
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -49,7 +50,7 @@ public class CommentController {
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<UpdateCommentResponse> updateComment(
             @PathVariable Long commentId,
-            @RequestBody UpdateCommentRequest request) {
+            @Valid @RequestBody UpdateCommentRequest request) {
         Long currentUserId = getCurrentUserId();
         UpdateCommentResponse result = commentService.update(currentUserId, commentId, request.getNewComment());
         return ResponseEntity.status(HttpStatus.OK).body(result);
