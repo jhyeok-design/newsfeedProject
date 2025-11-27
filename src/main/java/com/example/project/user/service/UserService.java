@@ -152,6 +152,7 @@ public class UserService {
                     throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
                 }
                 user.modifyNickname(newNickname);
+
             }
         }
 
@@ -189,7 +190,9 @@ public class UserService {
             // 비밀번호 수정, 인코딩
             String encodedNewPassword = passwordEncoder.encode(newPw);
             user.modifyPassword(encodedNewPassword);
+
         }
+        userRepository.flush();
 
         return UpdateUserResponse.from(user);
     }

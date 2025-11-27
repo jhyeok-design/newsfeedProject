@@ -56,7 +56,7 @@ public class UserController {
     }
 
     // 타 회원 마이페이지 조회 - 일반 정보만 노출하는 응답 객체
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<GetOtherUserResponse> getOtherUser(
             @PathVariable Long userId) {
         GetOtherUserResponse result = userService.getOtherUser(userId);

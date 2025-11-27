@@ -114,6 +114,7 @@ public class PostService {
             throw new EmptyPostUpdateException();
 
         post.update(request);
+        postRepository.flush();
 
         return UpdatePostResponse.from(post);
     }
