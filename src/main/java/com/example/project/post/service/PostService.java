@@ -2,9 +2,12 @@ package com.example.project.post.service;
 
 import com.example.project.common.entity.User;
 import com.example.project.common.exception.*;
-import com.example.project.post.dto.*;
-import com.example.project.post.dto.ReadPostResponse;
+import com.example.project.post.dto.response.CreatePostResponse;
+import com.example.project.post.dto.response.ReadPostResponse;
 import com.example.project.common.entity.Post;
+import com.example.project.post.dto.request.CreatePostRequest;
+import com.example.project.post.dto.request.UpdatePostRequest;
+import com.example.project.post.dto.response.UpdatePostResponse;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -109,9 +112,9 @@ public class PostService {
         isOwner(userId, post);
 
         // 아무 정보도 안 줬을 경우
-        if ((request.getTitle() == null || request.getTitle().isBlank())
-                && (request.getContent() == null || request.getContent().isBlank()))
-            throw new NothingToUpdateException();
+        boolean isTitleEmpty = request.getTitle() == null || request.getTitle().isBlank();
+        boolean isContentEmpty = request.getContent() == null || request.getContent().isBlank();
+        if (isTitleEmpty && isContentEmpty) throw new NothingToUpdateException();
 
         post.update(request);
         postRepository.flush();
