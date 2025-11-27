@@ -70,7 +70,7 @@ public class UserService {
                 () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
 
-        // 논리삭제된 유저 제외
+        // 논리삭제된 유저 제외 예외처리 에러코드 throw
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
         }
@@ -94,11 +94,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public GetUserResponse getMe(Long currentUserId) {
 
-        // 논리삭제된 유저 제외
         User user = findUserOrException(currentUserId);
-        if (user.isDeleted()) {
-            throw new CustomException(ErrorCode.USER_DELETED);
-        }
+
+        // 마이페이지를 보려면 로그인을 한 상태이므로, 삭제검증 필요없음
+        // 논리삭제된 유저 제외 예외처리 에러코드 throw
+//        if (user.isDeleted()) {
+//            throw new CustomException(ErrorCode.USER_DELETED);
+//        }
 
         // 팔로워/팔로잉 수 조회
         int followerCount = followRepository.countByFollowingsId(currentUserId);
@@ -111,7 +113,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public GetOtherUserResponse getOtherUser(Long userId) {
 
-        // 논리삭제된 유저 제외
+        // 논리삭제된 유저 제외 예외처리 에러코드 throw
         User user = findUserOrException(userId);
         if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_DELETED);
