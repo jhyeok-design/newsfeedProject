@@ -111,7 +111,7 @@ public class PostService {
         // 아무 정보도 안 줬을 경우
         if ((request.getTitle() == null || request.getTitle().isBlank())
                 && (request.getContent() == null || request.getContent().isBlank()))
-            throw new EmptyPostUpdateException();
+            throw new NothingToUpdateException();
 
         post.update(request);
         postRepository.flush();
