@@ -2,9 +2,12 @@ package com.example.project.post.service;
 
 import com.example.project.common.entity.User;
 import com.example.project.common.exception.*;
-import com.example.project.post.dto.*;
-import com.example.project.post.dto.ReadPostResponse;
+import com.example.project.post.dto.response.CreatePostResponse;
+import com.example.project.post.dto.response.ReadPostResponse;
 import com.example.project.common.entity.Post;
+import com.example.project.post.dto.request.CreatePostRequest;
+import com.example.project.post.dto.request.UpdatePostRequest;
+import com.example.project.post.dto.response.UpdatePostResponse;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

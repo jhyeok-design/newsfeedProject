@@ -1,7 +1,10 @@
 package com.example.project.post.controller;
 
-import com.example.project.post.dto.*;
-import com.example.project.post.dto.ReadPostResponse;
+import com.example.project.post.dto.response.CreatePostResponse;
+import com.example.project.post.dto.response.ReadPostResponse;
+import com.example.project.post.dto.request.CreatePostRequest;
+import com.example.project.post.dto.request.UpdatePostRequest;
+import com.example.project.post.dto.response.UpdatePostResponse;
 import com.example.project.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.List;
+
 import static com.example.project.security.util.SecurityUtil.getCurrentUserId;
 
 /**

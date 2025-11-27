@@ -1,6 +1,6 @@
 package com.example.project.common.entity;
 
-import com.example.project.post.dto.UpdatePostRequest;
+import com.example.project.post.dto.request.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
