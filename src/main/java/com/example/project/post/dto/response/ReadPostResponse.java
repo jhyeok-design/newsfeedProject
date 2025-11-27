@@ -1,26 +1,25 @@
-package com.example.project.post.dto;
+package com.example.project.post.dto.response;
 
 import com.example.project.common.entity.Post;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor
-public class CreatePostResponse {
-    private final long id;
+public class ReadPostResponse {
+    private final Long id;
     private final String title;
     private final String content;
-    private final long userId;
+    private final Long userId;
     private final String userNickname;
-    private final long likeCount;
-    private final long commentCount;
+    private final Long likeCount;
+    private final Long commentCount;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public static CreatePostResponse from(Post post) {
-        return new CreatePostResponse(
+    public static ReadPostResponse from(Post post) {
+        return new ReadPostResponse(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),

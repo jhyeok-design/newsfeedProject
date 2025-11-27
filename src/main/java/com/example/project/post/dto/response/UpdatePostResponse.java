@@ -1,4 +1,4 @@
-package com.example.project.post.dto;
+package com.example.project.post.dto.response;
 
 import com.example.project.common.entity.Post;
 import lombok.Getter;
