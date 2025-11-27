@@ -13,7 +13,12 @@ public interface UserRepository extends JpaRepository<User,Long> {
 //    // user/model/projection에 UserProfileView 인터페이스 구현하기
 //    Optional<UserProfileView> findByIdAndIsDeletedFalse(Long id);
 
-    // 해당 닉네임을 가진 다른 유저가 존재하는지 확인
-    boolean existsByNicknameAndIdNot(String nickname, Long id);
+    // 이메일 중복 여부 확인 (회원가입)
+    boolean existsByEmail(String email);
 
+    // 닉네임 중복 여부 확인 (회원가입)
+    boolean existsByNickname(String nickname);
+
+    // 해당 닉네임을 가진 다른 유저가 존재하는지 확인 (내 정보 수정)
+    boolean existsByNicknameAndIdNot(String nickname, Long id);
 }
