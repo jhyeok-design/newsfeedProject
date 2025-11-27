@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.List;
 import static com.example.project.security.util.SecurityUtil.getCurrentUserId;
 
 /**
@@ -47,7 +46,7 @@ public class PostController {
      * 게시물 전체 조회 (페이징)
      * - 특정 유저의 전체 게시물 조회 가능
      * - 기간 별 게시물 조회 가능
-     * @param userId 조회할 유저 ID (선택)
+     * @param userID 조회할 유저 ID (선택)
      * @param startDate 시작일 (선택)
      * @param endDate 종료일 (선택)
      * @param page 보려는 페이지
@@ -56,13 +55,13 @@ public class PostController {
      */
     @GetMapping("/posts/pages")
     public ResponseEntity<Page<ReadPostResponse>> getAllPostPage(
-            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long userID,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReadPostResponse> result = postService.getAllPost(userId, startDate, endDate, pageable);
+        Page<ReadPostResponse> result = postService.getAllPost(userID, startDate, endDate, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -76,9 +75,9 @@ public class PostController {
     public ResponseEntity<Page<ReadPostResponse>> getFollowerPost(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Long userId = getCurrentUserId();
+        Long userID = getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        Page<ReadPostResponse> result = postService.getFollowerPost(userId, pageable);
+        Page<ReadPostResponse> result = postService.getFollowerPost(userID, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -95,15 +94,15 @@ public class PostController {
 
     /**
      * 게시물 수정
-     * @param postId 게시물 ID
+     * @param postID 게시물 ID
      * @param request 수정할 게시물 정보 ReadResponse DTO
      * @return 수정된 게시물의 Response DTO
      */
-    @PutMapping("/posts/{postId}")
-    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postId,
+    @PatchMapping("/posts/{postId}")
+    public ResponseEntity<UpdatePostResponse> updatePost(@PathVariable Long postID,
                                                          @RequestBody UpdatePostRequest request) {
-        Long userId = getCurrentUserId();
-        UpdatePostResponse result = postService.updatePost(userId, postId, request);
+        Long userID = getCurrentUserId();
+        UpdatePostResponse result = postService.updatePost(userID, postID, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

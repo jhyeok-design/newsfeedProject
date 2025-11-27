@@ -26,13 +26,13 @@ public class PostService {
 
     /**
      * 게시물 생성 - 로그인 필요
-     * @param userId 로그인한 유저 ID
+     * @param userID 로그인한 유저 ID
      * @param request 생성할 게시물의 제목과 내용
      * @return 게시물 생성 요청 DTO
      */
-    public CreatePostResponse createPost(Long userId, CreatePostRequest request) {
+    public CreatePostResponse createPost(Long userID, CreatePostRequest request) {
 
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
         Post post = new Post(
                 request.getTitle(),
                 request.getContent(),
@@ -48,17 +48,17 @@ public class PostService {
      * 게시물 전체 조회 (페이징)
      * - 유저 ID가 없으면 모든 게시물 조회
      * - 유저 ID가 있으면 유저의 게시물 전체 조회
-     * @param userId 조회할 유저 ID (선택)
+     * @param userID 조회할 유저 ID (선택)
      * @param startDate 시작일 (선택)
      * @param endDate 종료일 (선택)
      * @param pageable 페이징 정보를 담고 있는 객체
      * @return 조회한 게시물이 있는 페이지
      */
     @Transactional(readOnly = true)
-    public Page<ReadPostResponse> getAllPost(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<ReadPostResponse> getAllPost(Long userID, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         // 유저 조회 (userId가 null이면, null)
-        User user = userId == null ? null
-                : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userID == null ? null
+                : userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
 
         LocalDateTime start = startDate == null ? null : startDate.atStartOfDay(); // 시간을 00:00:00으로 설정
         LocalDateTime end = endDate == null ? null : endDate.atTime(LocalTime.MAX); // 시간을 23:59:59로 설정
@@ -70,15 +70,15 @@ public class PostService {
 
     /**
      * 내가 팔로우 한 유저들의 게시물 전체 조회 (페이징) - 로그인 필요
-     * @param userId 로그인한 유저 ID
+     * @param userID 로그인한 유저 ID
      * @param pageable 페이징 정보를 담고 있는 객체
      * @return 조회한 게시물이 있는 페이지
      */
-    public Page<ReadPostResponse> getFollowerPost(Long userId, Pageable pageable) {
+    public Page<ReadPostResponse> getFollowerPost(Long userID, Pageable pageable) {
 
-        if (!userRepository.existsById(userId)) throw new UserNotFoundException(); // 유저 확인
+        if (!userRepository.existsById(userID)) throw new UserNotFoundException(); // 유저 확인
 
-        Page<Post> posts = postRepository.findFollwerPosts(userId, pageable); // 게시물 조회
+        Page<Post> posts = postRepository.findFollwerPosts(userID, pageable); // 게시물 조회
 
         return posts.map(ReadPostResponse::from);
     }
@@ -98,15 +98,15 @@ public class PostService {
 
     /**
      * 게시물 수정 - 로그인 필요
-     * @param userId 로그인한 유저 ID
+     * @param userID 로그인한 유저 ID
      * @param postId 수정할 게시물 ID
      * @param request 게시물
      * @return 게시물 수정 응답 DTO
      */
-    public UpdatePostResponse updatePost(Long userId, Long postId, UpdatePostRequest request) {
+    public UpdatePostResponse updatePost(Long userID, Long postId, UpdatePostRequest request) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
         Post post = postRepository.findByIdAndIsDeletedFalse(postId).orElseThrow(PostNotFoundException::new);
-        isOwner(userId, post);
+        isOwner(userID, post);
 
         // 아무 정보도 안 줬을 경우
         if ((request.getTitle() == null || request.getTitle().isBlank())
