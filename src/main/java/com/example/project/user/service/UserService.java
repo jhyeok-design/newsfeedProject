@@ -184,7 +184,7 @@ public class UserService {
         return UpdateUserResponse.from(user);
     }
 
-    // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
+    // 회원 논리적 삭제
     public void deleteUser(Long currentUserId, DeleteUserRequest request) {
 
         User user = findUserOrException(currentUserId);
