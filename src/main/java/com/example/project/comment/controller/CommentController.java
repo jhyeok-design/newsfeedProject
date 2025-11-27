@@ -8,6 +8,9 @@ import com.example.project.comment.model.response.UpdateCommentResponse;
 import com.example.project.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,18 +40,18 @@ public class CommentController {
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<GetCommentResponse> result = commentService.findComments(postId, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<GetCommentResponse> result = commentService.findComments(postId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     // 댓글 수정
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<UpdateCommentResponse> updateComment(
-            @PathVariable Long postId,
             @PathVariable Long commentId,
             @RequestBody UpdateCommentRequest request) {
         Long currentUserId = getCurrentUserId();
-        UpdateCommentResponse result = commentService.update(currentUserId, postId, commentId, request.getNewComment());
+        UpdateCommentResponse result = commentService.update(currentUserId, commentId, request.getNewComment());
         return ResponseEntity.status(HttpStatus.OK).body(result);
 
     }
@@ -56,10 +59,9 @@ public class CommentController {
     // 댓글 삭제
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable Long postId,
             @PathVariable Long commentId) {
         Long currentUserId = getCurrentUserId();
-        commentService.delete(currentUserId, postId, commentId);
+        commentService.delete(currentUserId, commentId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

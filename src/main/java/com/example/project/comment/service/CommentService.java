@@ -11,6 +11,7 @@ import com.example.project.common.exception.CustomException;
 import com.example.project.common.exception.ErrorCode;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
+import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,8 +43,7 @@ public class CommentService {
 
     // 게시글 댓글 조회
     @Transactional(readOnly = true)
-    public Page<GetCommentResponse> findComments(Long postId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    public Page<GetCommentResponse> findComments(Long postId, Pageable pageable) {
         Post post = findPostOrException(postId);
 
         Page<Comment> comments = commentRepository.findByPost(post, pageable);
@@ -53,10 +53,9 @@ public class CommentService {
     }
 
     // 게시글 댓글 수정
-    public UpdateCommentResponse update(Long currentUserId, Long postId, Long commentId, String comment) {
+    public UpdateCommentResponse update(Long currentUserId, Long commentId, String comment) {
         Comment comments = findCommentOrException(commentId);
-        commentInPostOrException(comments, postId);
-        commentByUserOrException(comments,currentUserId);
+        commentByUserOrException(comments, currentUserId);
 
         comments.update(comment);
         commentRepository.flush();
@@ -65,18 +64,16 @@ public class CommentService {
     }
 
     // 게시글 댓글 삭제
-    public void delete(Long currentUserId, Long postId, Long commentId) {
+    public void delete(Long currentUserId, Long commentId) {
         Comment comments = findCommentOrException(commentId);
-        commentInPostOrException(comments, postId);
-        commentByUserOrException(comments,currentUserId);
+        commentByUserOrException(comments, currentUserId);
 
         commentRepository.delete(comments);
         Post post = comments.getPost();
 
-        Long commentCount = commentRepository.countByPostId(postId);
+        Long commentCount = commentRepository.countByPostId(comments.getPost().getId());
         post.updateCommentCount(commentCount);
     }
-
 
     public User findUserOrException(Long userId) {
         return userRepository.findById(userId).orElseThrow(
@@ -94,12 +91,6 @@ public class CommentService {
         return commentRepository.findById(commentId).orElseThrow(
                 () -> new CustomException(ErrorCode.COMMENT_NOT_FOUND)
         );
-    }
-
-    private void commentInPostOrException(Comment comment, Long postId) {
-        if (!comment.getPost().getId().equals(postId)) {
-            throw new CustomException(ErrorCode.COMMENT_NOT_IN_POST);
-        }
     }
 
     private void commentByUserOrException(Comment comment, Long userId) {
