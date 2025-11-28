@@ -11,12 +11,9 @@ import com.example.project.common.exception.CustomException;
 import com.example.project.common.exception.ErrorCode;
 import com.example.project.post.repository.PostRepository;
 import com.example.project.user.repository.UserRepository;
-import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
