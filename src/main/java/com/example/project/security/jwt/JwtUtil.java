@@ -22,7 +22,7 @@ public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
-    private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간 (3분)
+    private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간 (1시간)
 
     // 서명 키 생성
     private Key getSignKey() {
