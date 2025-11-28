@@ -1,32 +1,32 @@
 # 🐷 삼겹Gram (뉴스피드 프로젝트)
 
-## 1. 프로젝트 소개 (Project Overview)
+## 1. 프로젝트 소개 
 ### 💡 한줄 소개
-> 유저들의 일상을 공유하고 연결하는 공간
+> 유저들의 일상을 공유하고 연결하는 공간입니다!
 
 ### 🎯 프로젝트 목적
-- 사용자 간 정보 공유와 개인 타임라인 구축을 통해 소통을 강화
+- 사용자 간 정보 공유와 개인 타임라인 구축을 통한 소통 강화
 
 ### ✨ 주요 기능 요약
-- 유저: 유저 CRUD
-- 포스트: 게시물 CRUD
-- 댓글: 댓글 CRUD
+- 유저: 유저 생성, 조회, 수정, 삭제
+- 포스트: 게시물 생성, 조회, 수정, 삭제
+- 댓글: 댓글 생성, 조회, 수정, 삭제
 - 팔로우: 팔로우/언팔로우, 팔로워·팔로잉 조회
-- 좋아요: 게시물 좋아요/취소
+- 좋아요: 게시물 좋아요 생성/취소
 
 ---
 
-## 2. 기술 스택 (Tech Stack)
+## 2. 기술 스택 
 
 | 영역 | 기술 |
 |------|-------|
 | **Language** | Java 17 |
 | **Framework** | Spring Boot 3.5.7, Spring Web |
 | **ORM** | Spring Data JPA |
-| **Security** | Spring Security, JWT (Json Web Token) |
+| **Security** | Spring Security, JWT |
 | **Validation** | Jakarta Validation |
 | **Library** | Lombok |
-| **Database** | MySQL 8.x, MySQL Driver, ERD 설계 |
+| **Database** | MySQL, MySQL Driver |
 | **Build Tool** | Gradle |
 | **Tools** | IntelliJ IDEA, Postman |
 | **Version Control** | Git / GitHub |
@@ -34,12 +34,12 @@
 
 ---
 
-## 3. 시스템 구조 (Architecture)
+## 3. 시스템 구조 
 
 ### 🗂️ ERD
 ![img.png](erd.png)
 
-### 📁 디렉토리 구조 (Optional)
+### 📁 디렉토리 구조 
 ```bash
 com.example.project
 ├── comment
@@ -151,24 +151,24 @@ com.example.project
 ```
 ---
 
-## 4. 구현 기능 (Features)
+## 4. 구현 기능
 
 ### 👤 User
 - 회원가입
 - 로그인, 로그아웃
 - 마이페이지, 타 유저 페이지 조회
 - 내 정보 수정
-- 회원 삭제
+- 회원탈퇴
 
 ### 📝 Post
 - 게시글 생성
-- 게시글 조회
+- 게시글 조회 (페이징, 기간별 조회)
 - 게시글 수정
 - 게시글 삭제
 
 ### 💬 Comment
 - 댓글 생성
-- 댓글 조회
+- 댓글 조회 (페이징 조회)
 - 댓글 수정
 - 댓글 삭제
 
@@ -183,20 +183,20 @@ com.example.project
 
 ---
 
-## 5. API 명세 (API Specification)
+## 5. API 명세 
 > https://www.notion.so/teamsparta/3-2b22dc3ef51480a8a326f941bc904010
 
 ---
 
-## 6. 트러블슈팅 (Troubleshooting)
+## 6. 트러블 슈팅 
 ### #️⃣ Git 협업 문제
 **🔍 문제점**
 - 여러 팀원이 동시에 같은 파일을 수정하면서 브랜치 충돌(Conflict) 반복
 - .gitignore 설정 미흡으로 빌드 파일 등이 레포지토리에 포함되는 문제 발생
-- main, dev 브랜치 용도가 혼동되어 작업 흐름이 불안정함
+- main, dev 브랜치 용도가 혼동되어 작업 흐름 불안정
 
 **🛠 해결**
-- 팀 규칙 통일: Pull → 작업 → Commit → Push 순서 준수
+- 팀 규칙 통일: Pull → 작업 → Commit → Push 순서 준수 (PR 후 공지)
 - 프로젝트 공통 .gitignore 파일 재정비
 - 브랜치 전략 확립
     - main : 배포용
