@@ -47,7 +47,7 @@ public class FollowController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Long currentUserId = getCurrentUserId();
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FollowResponse> result = followService.findFollowings(currentUserId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -58,7 +58,7 @@ public class FollowController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Long currentUserId = getCurrentUserId();
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<FollowResponse> result = followService.findFollowers(currentUserId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

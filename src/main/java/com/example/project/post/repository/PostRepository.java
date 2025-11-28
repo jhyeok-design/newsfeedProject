@@ -1,6 +1,5 @@
 package com.example.project.post.repository;
 
-import com.example.project.common.entity.Comment;
 import com.example.project.common.entity.User;
 import com.example.project.common.entity.Post;
 import org.springframework.data.domain.Page;
@@ -10,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
