@@ -35,7 +35,8 @@ public class PostService {
      */
     public CreatePostResponse createPost(Long userId, CreatePostRequest request) {
 
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Post post = new Post(
                 request.getTitle(),
                 request.getContent(),
@@ -60,8 +61,8 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<ReadPostResponse> getAllPost(Long userId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         // 유저 조회 (userId가 null이면, null)
-        User user = userId == null ? null
-                : userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userId == null ? null : userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         LocalDateTime start = startDate == null ? null : startDate.atStartOfDay(); // 시간을 00:00:00으로 설정
         LocalDateTime end = endDate == null ? null : endDate.atTime(LocalTime.MAX); // 시간을 23:59:59로 설정
@@ -79,7 +80,7 @@ public class PostService {
      */
     public Page<ReadPostResponse> getFollowerPost(Long userId, Pageable pageable) {
 
-        if (!userRepository.existsById(userId)) throw new UserNotFoundException(); // 유저 확인
+        if (!userRepository.existsById(userId)) throw new CustomException(ErrorCode.USER_NOT_FOUND); // 유저 확인
 
         Page<Post> posts = postRepository.findFollowerPosts(userId, pageable); // 게시물 조회
 
@@ -94,7 +95,8 @@ public class PostService {
     @Transactional(readOnly = true)
     public ReadPostResponse getOnePost(Long postID) {
         // 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-        Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
+        Post post = postRepository.findByIdAndIsDeletedFalse(postID)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         return ReadPostResponse.from(post);
     }
@@ -108,13 +110,14 @@ public class PostService {
      */
     public UpdatePostResponse updatePost(Long userId, Long postId, UpdatePostRequest request) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-        Post post = postRepository.findByIdAndIsDeletedFalse(postId).orElseThrow(PostNotFoundException::new);
+        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         isOwner(userId, post);
 
         // 아무 정보도 안 줬을 경우
         boolean isTitleEmpty = request.getTitle() == null || request.getTitle().isBlank();
         boolean isContentEmpty = request.getContent() == null || request.getContent().isBlank();
-        if (isTitleEmpty && isContentEmpty) throw new NothingToUpdateException();
+        if (isTitleEmpty && isContentEmpty) throw new CustomException(ErrorCode.NOTHING_TO_UPDATE);
 
         post.update(request);
         postRepository.flush();
@@ -129,7 +132,8 @@ public class PostService {
      */
     public void deletePost(Long userID, Long postID) {
         // 유저의 게시물 조회, 삭제 처리된 게시물은 조회 안됨
-        Post post = postRepository.findByIdAndIsDeletedFalse(postID).orElseThrow(PostNotFoundException::new);
+        Post post = postRepository.findByIdAndIsDeletedFalse(postID)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         isOwner(userID, post);
 
         post.delete(); // 조회한 게시물 삭제 처리
@@ -142,9 +146,10 @@ public class PostService {
      */
     private void isOwner(Long userID, Post post) {
         // 유저 조회
-        User user = userRepository.findById(userID).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         // 유저가 게시물의 작성자가 아니면 예외처리
-        if (!post.getUser().equals(user)) throw new NotResourceOwnerException();
+        if (!post.getUser().equals(user)) throw new CustomException(ErrorCode.NOT_RESOURCE_OWNER);
     }
 
 }
