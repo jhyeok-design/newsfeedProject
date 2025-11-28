@@ -1,12 +1,16 @@
 package com.example.project.user.service;
 
 import com.example.project.common.entity.User;
+import com.example.project.common.exception.CustomException;
+import com.example.project.common.exception.ErrorCode;
 import com.example.project.common.utils.PasswordEncoder;
+import com.example.project.follow.repository.FollowRepository;
+import com.example.project.security.jwt.JwtUtil;
 import com.example.project.user.model.request.CreateUserRequest;
+import com.example.project.user.model.request.DeleteUserRequest;
+import com.example.project.user.model.request.LoginRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
-import com.example.project.user.model.response.CreateUserResponse;
-import com.example.project.user.model.response.GetUserResponse;
-import com.example.project.user.model.response.UpdateUserResponse;
+import com.example.project.user.model.response.*;
 import com.example.project.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,15 +23,36 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final FollowRepository followRepository;
 
+    // 회원 가입
     public CreateUserResponse createUser(CreateUserRequest request) {
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        // 입력값 정리
+        String userName = request.getUserName().trim();
+        String email = normalizeEmail(request.getEmail());
+        String nickname = request.getNickname().trim();
+        String rawPassword = request.getPassword();
 
+        // 이메일 중복 여부 확인
+        if (userRepository.existsByEmail(email)) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
+
+        // 닉네임 중복 여부 확인
+        if (userRepository.existsByNickname(nickname)) {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+
+        // 암호화
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+
+        // 유저 객체 생성
         User user = new User(
-                request.getUserName(),
-                request.getEmail(),
-                request.getNickname(),
+                userName,
+                email,
+                nickname,
                 encodedPassword
         );
 
@@ -37,38 +62,150 @@ public class UserService {
 
     }
 
+    // 로그인
     @Transactional(readOnly = true)
-    public GetUserResponse findUser(Long userId) {
-        User user = findUserOrException(userId);
+    public LoginResponse login(LoginRequest request) {
+        String email = normalizeEmail(request.getEmail());
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
 
-        return GetUserResponse.from(user);
+        // 논리삭제된 유저 제외 예외처리 에러코드 throw
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+        String token = jwtUtil.generateToken(user);
+        return LoginResponse.from(token);
     }
 
-    // 내 정보 수정 (로그인 기능 적용 전까지 userId 임시 사용)
-    @Transactional
-    public UpdateUserResponse updateUser(Long userId, UpdateUserRequest request) {
-        User user = findUserOrException(userId);
-
-        user.updateUser(
-                request.getNickname(),
-                request.getPassword()
+    // 로그아웃
+    public void logout(Long currentUserId) {
+        User user = userRepository.findById(currentUserId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
+        user.increaseTokenVersion();
+    }
+
+    // 마이페이지 조회
+    @Transactional(readOnly = true)
+    public GetUserResponse getMe(Long currentUserId) {
+
+        User user = findUserOrException(currentUserId);
+
+        // 마이페이지를 보려면 로그인을 한 상태이므로, 삭제검증 필요없음
+        // 논리삭제된 유저 제외 예외처리 에러코드 throw
+//        if (user.isDeleted()) {
+//            throw new CustomException(ErrorCode.USER_DELETED);
+//        }
+
+        // 팔로워/팔로잉 수 조회
+        int followerCount = followRepository.countByFollowingsId(currentUserId);
+        int followingCount = followRepository.countByFollowersId(currentUserId);
+
+        return GetUserResponse.from(user, followerCount, followingCount);
+    }
+
+    // 타 회원 마이페이지 조회
+    @Transactional(readOnly = true)
+    public GetOtherUserResponse getOtherUser(Long userId) {
+
+        // 논리삭제된 유저 제외 예외처리 에러코드 throw
+        User user = findUserOrException(userId);
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_DELETED);
+        }
+
+        // 팔로워/팔로잉 수 조회
+        int followerCount = followRepository.countByFollowingsId(userId);
+        int followingCount = followRepository.countByFollowersId(userId);
+
+        return GetOtherUserResponse.from(user, followerCount, followingCount);
+    }
+    
+    // 내 정보 수정
+    public UpdateUserResponse updateMe(Long currentUserId, UpdateUserRequest request) {
+        User user = findUserOrException(currentUserId);
+
+        // 요청 값 존재 여부 확인
+        boolean nicknameExists = request.getNickname() != null && !request.getNickname().isBlank();
+        boolean currentPwExists = request.getCurrentPassword() != null && !request.getCurrentPassword().isBlank();
+        boolean newPwExists = request.getNewPassword() != null && !request.getNewPassword().isBlank();
+
+
+        // 아무런 값도 안 보냈을 때
+        if (!nicknameExists && !currentPwExists && !newPwExists) {
+            throw new CustomException(ErrorCode.NOTHING_TO_UPDATE);
+        }
+
+        // 닉네임 변경
+        if (nicknameExists) {
+            String newNickname = request.getNickname().trim();
+
+            // 기존 닉네임과 같은 닉네임인지 중복 확인
+            if (!newNickname.equals(user.getNickname())) {
+                if (userRepository.existsByNicknameAndIdNot(newNickname, user.getId())) {
+                    throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+                }
+                user.modifyNickname(newNickname);
+
+            }
+        }
+
+        // 비밀번호 변경
+        // 현재 비밀번호와 새로운 비밀번호 둘 중 하나라도 있으면 변경 의사가 존재
+        if (currentPwExists || newPwExists) {
+
+            // 두 값이 다 있어야 정상 변경
+            if (!currentPwExists || !newPwExists) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD_INPUT); // 두 값 중 하나가 빠졌을 때
+            }
+
+            // 현재 비밀번호 검증
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                throw new CustomException(ErrorCode.INVALID_PASSWORD);
+            }
+
+            // 새 비밀번호가 현재 비밀번호와 같은지 확인
+            if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+                throw new CustomException(ErrorCode.SAME_PASSWORD);
+            }
+
+            String newPw = request.getNewPassword();
+
+            // 비밀번호 수정, 인코딩
+            String encodedNewPassword = passwordEncoder.encode(newPw);
+            user.modifyPassword(encodedNewPassword);
+
+        }
+        userRepository.flush();
 
         return UpdateUserResponse.from(user);
     }
 
-    // 회원 삭제 (로그인 기능 적용 전까지 userId 임시 사용)
-    @Transactional
-    public void deleteUser(Long userId) {
-        User user = findUserOrException(userId);
+    // 회원 논리적 삭제
+    public void deleteUser(Long currentUserId, DeleteUserRequest request) {
 
-        userRepository.deleteById(userId);
+        User user = findUserOrException(currentUserId);
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+        
+        user.softDelete();
     }
 
     public User findUserOrException(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("유저 없음")
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
         );
+    }
+
+    private String normalizeEmail(String email) {
+        return (email == null) ? null : email.trim().toLowerCase();
     }
 }
 

@@ -1,15 +1,19 @@
 package com.example.project.user.controller;
 
 import com.example.project.user.model.request.CreateUserRequest;
+import com.example.project.user.model.request.DeleteUserRequest;
+import com.example.project.user.model.request.LoginRequest;
 import com.example.project.user.model.request.UpdateUserRequest;
-import com.example.project.user.model.response.CreateUserResponse;
-import com.example.project.user.model.response.GetUserResponse;
-import com.example.project.user.model.response.UpdateUserResponse;
+import com.example.project.user.model.response.*;
 import com.example.project.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import static com.example.project.security.util.SecurityUtil.getCurrentUserId;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,38 +21,63 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<CreateUserResponse> createUser(
-            @RequestBody CreateUserRequest request
-    ) {
+            @Valid @RequestBody CreateUserRequest request) {
         CreateUserResponse result = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest request) {
+        LoginResponse result = userService.login(request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        //Long userId = (Long) authentication.getPrincipal();
+        Long currentUserId = getCurrentUserId();
+        userService.logout(currentUserId);
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    // 마이 페이지 조회
+    @GetMapping("/users/me")
+    public ResponseEntity<GetUserResponse> getMe() {
+        Long currentUserId = getCurrentUserId();
+        GetUserResponse result = userService.getMe(currentUserId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 타 회원 마이페이지 조회 - 일반 정보만 노출하는 응답 객체
     @GetMapping("/users/{userId}")
-    public ResponseEntity<GetUserResponse> getUser(
-            @PathVariable long userId
-    ) {
-        GetUserResponse result = userService.findUser(userId);
+    public ResponseEntity<GetOtherUserResponse> getOtherUser(
+            @PathVariable Long userId) {
+        GetOtherUserResponse result = userService.getOtherUser(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 내 정보 수정 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
-    @PatchMapping("/users/{userId}")
-    public ResponseEntity<UpdateUserResponse> updateUser(
-            @PathVariable Long userId,
-            @RequestBody UpdateUserRequest request
-    ) {
-        UpdateUserResponse result = userService.updateUser(userId, request);
+    // 내 정보 수정
+    @PatchMapping("/users/me")
+    public ResponseEntity<UpdateUserResponse> updateMe(
+           @Valid @RequestBody UpdateUserRequest request) {
+        Long currentUserId = getCurrentUserId();
+        UpdateUserResponse result = userService.updateMe(currentUserId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
-    // 회원 삭제 (로그인 기능 적용 전까지 userId를 PathVariable 로 임시 사용)
-    @DeleteMapping("/users/{userId}")
+    // 회원정보 논리적 삭제
+    @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Long userId
-    ) {
-        userService.deleteUser(userId);
+            @Valid @RequestBody DeleteUserRequest request) {
+        Long currentUserId = getCurrentUserId();
+        userService.deleteUser(currentUserId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

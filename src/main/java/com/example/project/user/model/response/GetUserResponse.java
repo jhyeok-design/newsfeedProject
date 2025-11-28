@@ -17,15 +17,21 @@ public class GetUserResponse {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
+    private final int followerCount;
+    private final int followingCount;
 
-    public static GetUserResponse from(User user) {
+
+    public static GetUserResponse from(User user, int followerCount, int followingCount) {
         return new GetUserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
                 user.getUserName(),
                 user.getCreatedAt(),
-                user.getModifiedAt()
+                user.getModifiedAt(),
+
+                followerCount,
+                followingCount
         );
     }
 

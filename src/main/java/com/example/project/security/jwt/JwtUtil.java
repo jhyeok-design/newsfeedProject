@@ -1,0 +1,78 @@
+package com.example.project.security.jwt;
+
+import com.example.project.common.entity.User;
+import com.example.project.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
+
+@RequiredArgsConstructor
+@Component
+public class JwtUtil {
+
+    private final UserRepository userRepository;
+
+    @Value("${jwt.secret}")
+    private String secret;
+    private static final long TOKEN_EXPIRE_TIME = 60 * 60 * 1000L; // 토큰 유효 기간 (1시간)
+
+    // 서명 키 생성
+    private Key getSignKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    // JWT 생성
+    public String generateToken(User user) {
+
+        // 토큰 만료 시간
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + TOKEN_EXPIRE_TIME);
+
+        return Jwts.builder()
+                .setSubject(String.valueOf(user.getId()))
+                .claim("tokenVersion", user.getTokenVersion())
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // userId 반환
+    public Long getUserIdFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return Long.parseLong(claims.getSubject());
+    }
+
+    // tokenVersion 반환
+    public Integer getTokenVersionFromToken(String token) {
+        Claims claims = parseClaims(token);
+        return claims.get("tokenVersion", Integer.class);
+    }
+
+    // 토큰 검증
+    public boolean validateToken(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // JWT 파싱
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+}
