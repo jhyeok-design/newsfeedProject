@@ -20,9 +20,7 @@ public enum ErrorCode {
     FOLLOW_ALREADY_EXISTS(HttpStatus.CONFLICT, "FOLLOW_ALREADY_EXISTS", "이미 팔로우한 사용자입니다."),
 
     NOTHING_TO_UPDATE(HttpStatus.BAD_REQUEST, "NOTHING_TO_UPDATE", "수정할 값이 없습니다."),
-    INVALID_NICKNAME_FORMAT(HttpStatus.BAD_REQUEST, "INVALID_NICKNAME_FORMAT", "닉네임은 영문 소문자 시작, 숫자와 '_'만 가능하며 3~20자여야 합니다."),
     INVALID_PASSWORD_INPUT(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_INPUT", "기존 비밀번호와 새 비밀번호 모두 입력해주세요."),
-    INVALID_PASSWORD_FORMAT(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_FORMAT", "비밀번호는 공백 없이 8자 이상이며 대문자, 소문자, 숫자, 특수문자를 최소 1개씩 포함해야 합니다."),
     SELF_FOLLOW_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "SELF_FOLLOW_NOT_ALLOWED", "본인을 팔로우할 수 없습니다."),
 
     NOT_RESOURCE_OWNER(HttpStatus.FORBIDDEN, "NOT_RESOURCE_OWNER", "작성자만 가능한 작업입니다."),
